@@ -562,15 +562,15 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[33] == true)
                 {
+                    OtherMods.TagAura();
+                }
+                if (buttonsActive[34] == true)
+                {
                     TPtoStump(true);
                 }
                 else
                 {
                     TPtoStump(false);
-                }
-                if (buttonsActive[34] == true)
-                {
-                    // Placeholder
                 }
                 if (buttonsActive[35] == true)
                 {
