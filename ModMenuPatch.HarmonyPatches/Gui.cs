@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Reflection;
 using BepInEx;
 using GorillaNetworking;
@@ -72,6 +72,10 @@ namespace KosmosGUI
                 { FastBug(true); }
                 else
                 { FastBug(false); }
+                if (modActive[4])
+                { SuperFastBug(true); }
+                else
+                { SuperFastBug(false); }
             }
         }
 
