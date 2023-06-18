@@ -3520,7 +3520,6 @@ true,
 
         public static void Draw()
         {
-
             bool check = !changedboards;
             if (check)
             {
