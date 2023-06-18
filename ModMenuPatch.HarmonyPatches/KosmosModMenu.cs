@@ -664,8 +664,7 @@ namespace ModMenuPatch.HarmonyPatches
 
 
 
-
-
+                // Kosmos OP Mod Menu \\
                 if (btnCooldown > 0 && Time.frameCount > btnCooldown)
                 {
                     btnCooldown = 0;
