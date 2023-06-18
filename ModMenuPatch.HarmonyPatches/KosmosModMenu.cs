@@ -137,8 +137,8 @@ namespace ModMenuPatch.HarmonyPatches
         "Tag ALL (UD)",
         "Tag Gun (UD)",
         "Tag Gun V2 (UD)",
+        "Tag Aura",
         "Teleport To Stump (UD)",
-        "Placeholder", // Placeholder 34
         "Swim In Air",
         "Slingshot ALL (SS)(UD)",
         "Slingshot Self (SS)(UD)",
