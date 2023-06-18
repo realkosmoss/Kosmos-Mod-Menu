@@ -146,8 +146,8 @@ namespace ModMenuPatch.HarmonyPatches
         "Waterspam (Trigger)",
         "Waterspam GUN",
         "Teleport Rig To Random Player",
-        "Scaregun ARMS",
         "Fast Bug",
+        "Super Fast Bug",
         "Cool FPS Counter",
         "Water Gun",
         "Spam Water",
@@ -601,13 +601,13 @@ namespace ModMenuPatch.HarmonyPatches
                     TeleportRigToRandomPlayer();
                 }
                 if (buttonsActive[42] == true)
-                {
-                    ScareGunArms();
-                }
-                if (buttonsActive[43] == true)
                 { FastBug(true); }
                 else
                 { FastBug(false); }
+                if (buttonsActive[43] == true)
+                { OtherMods.SuperFastBug(true); }
+                else
+                { OtherMods.SuperFastBug(false); }
                 if (buttonsActive[44] == true)
                 { FpsCounter(true); }
                 else

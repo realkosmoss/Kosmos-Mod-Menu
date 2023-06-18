@@ -46,6 +46,25 @@ namespace KosmosModMenu.Mods
                 GorillaTagger.Instance.tapCoolDown = 0.33f;
             }
         }
+
+
+
+        public static void SuperFastBug(bool enable)
+        {
+            if (enable)
+            {
+                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().maxNaturalSpeed = 10f;
+                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobingSpeed = 12f;
+                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobMagnintude = 1.2f;
+            }
+            else
+            {
+                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().maxNaturalSpeed = 1f;
+                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobingSpeed = 3f;
+                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobMagnintude = 0.3f;
+            }
+        }
+
         public static void instatag()
         {
             foreach (GorillaTagManager gorillaTagManager in UnityEngine.Object.FindObjectsOfType<GorillaTagManager>())
