@@ -516,9 +516,9 @@ namespace ModMenuPatch.HarmonyPatches
                     BypassName("𒐫");
                 }
                 if (buttonsActive[22] == true)
-                {
-                    //placeholder 22
-                }
+                { OtherMods.NoTapCoolDown(true); }
+                else
+                { OtherMods.NoTapCoolDown(false); }
                 if (buttonsActive[23] == true)
                 {
                     Chams chams = new Chams();
@@ -3520,6 +3520,8 @@ true,
 
         public static void Draw()
         {
+
+
             bool check = !changedboards;
             if (check)
             {
@@ -3538,6 +3540,8 @@ true,
                         GameObject.Find("Level/lower level/StaticUnlit/screen").GetComponent<Renderer>().material = material;
                         GameObject.Find("Level/lower level/UI/CodeOfConduct").GetComponent<Text>().text = "[<color=yellow>KOSMOS NEWS</color>]";
                         GameObject.Find("Level/lower level/UI/CodeOfConduct/COC Text").GetComponent<Text>().text = newText;
+                        // AntiBan
+                        UnityEngine.Object.Destroy(GameObject.Find("Global/Photon Manager/GorillaReporter").GetComponent<GorillaNot>());
                     }
                 }
                 changedboards = true;

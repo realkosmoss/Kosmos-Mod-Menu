@@ -18,6 +18,7 @@ namespace KosmosGUI
         {
             if (init)
             {
+                GorillaComputer.instance.networkController.disableAFKKick = true;
                 Debug.Log("Kosmos GUI Has Loaded");
                 init = false;
             }
@@ -39,6 +40,7 @@ namespace KosmosGUI
             {
                 CloseGUI = !CloseGUI;
             }
+
 
             // what happens when the gui is on
             if (!CloseGUI)

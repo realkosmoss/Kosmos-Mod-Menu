@@ -1,7 +1,9 @@
 ﻿using GorillaLocomotion;
 using GorillaNetworking;
+using ModMenuPatch.HarmonyPatches;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Text;
 using UnityEngine;
 
@@ -33,10 +35,17 @@ namespace KosmosModMenu.Mods
 
 
 
-
-
-
-
+        public static void NoTapCoolDown(bool enable)
+        {
+            if (enable)
+            {
+                GorillaTagger.Instance.tapCoolDown = 0f;
+            }
+            else
+            {
+                GorillaTagger.Instance.tapCoolDown = 0.33f;
+            }
+        }
         public static void instatag()
         {
             foreach (GorillaTagManager gorillaTagManager in UnityEngine.Object.FindObjectsOfType<GorillaTagManager>())
