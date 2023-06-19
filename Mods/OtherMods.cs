@@ -1,6 +1,7 @@
 ﻿using GorillaLocomotion;
 using GorillaNetworking;
 using ModMenuPatch.HarmonyPatches;
+using Photon.Pun;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -35,19 +36,26 @@ namespace KosmosModMenu.Mods
 
 
 
-        public static void NoTapCoolDown(bool enable)
+
+        public static void TagAura()
         {
-            if (enable)
+            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
             {
-                GorillaTagger.Instance.tapCoolDown = 0f;
-            }
-            else
-            {
-                GorillaTagger.Instance.tapCoolDown = 0.33f;
+                bool flag = !vrrig.isMyPlayer;
+                if (flag)
+                {
+                    float num = Vector3.Distance(GorillaTagger.Instance.myVRRig.transform.position, vrrig.transform.position);
+                    bool flag2 = num < GorillaGameManager.instance.tagDistanceThreshold;
+                    if (flag2)
+                    {
+                        PhotonView.Get(GorillaGameManager.instance.GetComponent<GorillaGameManager>()).RPC("ReportTagRPC", RpcTarget.Others, new object[]
+                        {
+                        vrrig.photonView.Owner
+                        });
+                    }
+                }
             }
         }
-
-
 
         public static void SuperFastBug(bool enable)
         {
@@ -64,6 +72,19 @@ namespace KosmosModMenu.Mods
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobMagnintude = 0.3f;
             }
         }
+        public static void NoTapCoolDown(bool enable)
+        {
+            if (enable)
+            {
+                GorillaTagger.Instance.tapCoolDown = 0f;
+            }
+            else
+            {
+                GorillaTagger.Instance.tapCoolDown = 0.33f;
+            }
+        }
+
+
 
         public static void instatag()
         {

@@ -137,8 +137,8 @@ namespace ModMenuPatch.HarmonyPatches
         "Tag ALL (UD)",
         "Tag Gun (UD)",
         "Tag Gun V2 (UD)",
+        "Tag Aura",
         "Teleport To Stump (UD)",
-        "Placeholder", // Placeholder 34
         "Swim In Air",
         "Slingshot ALL (SS)(UD)",
         "Slingshot Self (SS)(UD)",
@@ -562,15 +562,15 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[33] == true)
                 {
+                    OtherMods.TagAura();
+                }
+                if (buttonsActive[34] == true)
+                {
                     TPtoStump(true);
                 }
                 else
                 {
                     TPtoStump(false);
-                }
-                if (buttonsActive[34] == true)
-                {
-                    // Placeholder
                 }
                 if (buttonsActive[35] == true)
                 {
@@ -664,8 +664,7 @@ namespace ModMenuPatch.HarmonyPatches
 
 
 
-
-
+                // Kosmos OP Mod Menu \\
                 if (btnCooldown > 0 && Time.frameCount > btnCooldown)
                 {
                     btnCooldown = 0;
