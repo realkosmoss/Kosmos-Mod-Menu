@@ -20,6 +20,9 @@ using GorillaLocomotion.Swimming;
 using KosmosModMenu.Mods;
 using KosmosModMenuChams;
 using IronMonke;
+using System.Net;
+using System.Threading;
+using UnityEngine.UI;
 
 namespace KosmosModMenu.Mods
 {
@@ -33,14 +36,75 @@ namespace KosmosModMenu.Mods
 
 
 
+        // Monke AI Basement Update \\
+        public static void OverPoweredMonkeyAI()
+        {
+            foreach (MonkeyeAI monkeyeAI in Object.FindObjectsOfType<MonkeyeAI>())
+            {
+                monkeyeAI.rotationSpeed = 69;
+                monkeyeAI.speed = 3;
+                monkeyeAI.attackDistance = 6969;
+                monkeyeAI.closeFloorTime = 6969;
+                monkeyeAI.chaseDistance = 6969;
+                monkeyeAI.beginAttackTime = 6969;
+            }
+        }
+        public static void FreezeMonkeyAI()
+        {
+            foreach (MonkeyeAI monkeyeAI in Object.FindObjectsOfType<MonkeyeAI>())
+            {
+                monkeyeAI.rotationSpeed = 69;
+                monkeyeAI.speed = 3;
+            }
+        }
+        public static void FastMonkeyAI()
+        {
+                foreach (MonkeyeAI monkeyeAI in Object.FindObjectsOfType<MonkeyeAI>())
+                {
+                monkeyeAI.rotationSpeed = 69;
+                monkeyeAI.speed = 3;
+            }
+        }
+        public static void FreezeAll()
+        {
+            foreach (VRRig vrrig in Object.FindObjectsOfType<VRRig>())
+            {
+                foreach (MonkeyeAI_ReplState monkeyeAI_ReplState in Object.FindObjectsOfType<MonkeyeAI_ReplState>())
+                {
+                    GorillaTagger.StatusEffect statusEffect = (GorillaTagger.StatusEffect)1;
+                    GorillaTagger.Instance.ApplyStatusEffect(statusEffect, GorillaTagger.Instance.tagCooldown);
+                    GorillaTagger.StatusEffect statusEffect2 = (GorillaTagger.StatusEffect)2;
+                    GorillaTagger.Instance.ApplyStatusEffect(statusEffect2, GorillaTagger.Instance.tagCooldown);
 
+                    monkeyeAI_ReplState.freezePlayer = true;
+                }
+            }
+        }
+        // End Of Monke AI \\
 
         // Trampoline Mods ( In Construction ) \\
+        public static void TrampolineSpeed()
+        {
+            GameObject gameObject = GameObject.Find("Level/canyon/Canyon/CanyonSummer23Geo/TrampolineA_Prefab Variant/BounceyTop");
+            GorillaSurfaceOverride component = gameObject.GetComponent<GorillaSurfaceOverride>();
+            component.extraVelMaxMultiplier = 100f;
+            component.extraVelMultiplier = 150f;
+        }
 
         // End Of Trampoline Mods \\
 
 
         // Water Mods Under \\
+
+        public static void MakeWaterBig()
+        {
+            foreach (WaterParameters waterParameters in Object.FindObjectsOfType(typeof(WaterParameters)))
+            {
+                waterParameters.splashEffectScale = 10f;
+                waterParameters.rippleEffectScale = 10f;
+            }
+        }
+
         public static void spamwater()
         {
             for (int i = 1; i <= 20; i++)

@@ -1,12 +1,32 @@
-﻿using GorillaLocomotion;
-using GorillaNetworking;
-using ModMenuPatch.HarmonyPatches;
-using Photon.Pun;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Text;
+using System.IO;
+using System.Linq;
+using ExitGames.Client.Photon;
+using GorillaLocomotion;
+using GorillaNetworking;
+using HarmonyLib;
+using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.XR;
+using BepInEx.Configuration;
+using System.Collections;
+using Object = UnityEngine.Object;
+using Player = GorillaLocomotion.Player;
+using GorillaLocomotion.Gameplay;
+using GorillaLocomotion.Swimming;
+using KosmosModMenu.Mods;
+using KosmosModMenuChams;
+using IronMonke;
+using System.Net;
+using System.Threading;
+using Oculus.Platform;
+using Oculus.Platform.Models;
+using Photon.Voice.PUN;
+using PlayFab;
+using PlayFab.ClientModels;
 
 namespace KosmosModMenu.Mods
 {
@@ -36,9 +56,24 @@ namespace KosmosModMenu.Mods
 
 
 
+        public static void Nametags()
+        {
+            foreach (Text text in GameObject.Find("GorillaVRRigs").GetComponentsInChildren<Text>())
+            {
+                PhotonView componentInParent = text.gameObject.GetComponentInParent<PhotonView>();
+                text.text = componentInParent.Controller.NickName + "\nUSER-ID: " + componentInParent.Controller.UserId;
+                bool hasMods = componentInParent.Controller.CustomProperties["mods"] != null;
+                if (hasMods)
+                {
+                    text.color = new Color(1f, 0.7778f, 1f, 1f);
+                }
+            }
+        }
+
 
         public static void TagAura()
         {
+            if (PhotonNetwork.InRoom)
             foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
             {
                 bool flag = !vrrig.isMyPlayer;
@@ -57,9 +92,23 @@ namespace KosmosModMenu.Mods
             }
         }
 
-        public static void SuperFastBug(bool enable)
+        public static void NoTagOnJoin()
         {
-            if (enable)
+            PlayerPrefs.SetString("tutorial", "nope");
+		    PlayerPrefs.Save();
+        }
+
+        public static void GrabBug()
+        {
+            {
+                GameObject.Find("Floating Bug Holdable").transform.localScale = new Vector3(500, 500, 500);
+            }
+        }
+        public static void SuperFastBug()
+        {
+            bool grip;
+            InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(UnityEngine.XR.CommonUsages.gripButton, out grip);
+            if (grip)
             {
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().maxNaturalSpeed = 10f;
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobingSpeed = 12f;

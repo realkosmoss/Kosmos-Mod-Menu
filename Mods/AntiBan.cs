@@ -1,4 +1,5 @@
 ﻿using GorillaNetworking;
+using Photon.Pun;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,6 +12,7 @@ namespace KosmosModMenu.Mods
         public AntiBan()
         {
             GameObject.Find("SaveModAccountData").GetComponent<GorillaComputer>().enabled = false;
+            PhotonNetwork.LocalPlayer.CustomProperties["mods"] = "";
         }
     }
 }

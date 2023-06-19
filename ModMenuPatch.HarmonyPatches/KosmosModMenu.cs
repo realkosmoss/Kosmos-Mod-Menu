@@ -20,6 +20,9 @@ using GorillaLocomotion.Swimming;
 using KosmosModMenu.Mods;
 using KosmosModMenuChams;
 using IronMonke;
+using System.Net;
+using System.Threading;
+using System.ComponentModel.Design;
 
 namespace ModMenuPatch.HarmonyPatches
 {
@@ -126,7 +129,7 @@ namespace ModMenuPatch.HarmonyPatches
         "SetNameKKK (UD)",
         "SetNameKosmos (UD)",
         "SetNameInvisible (UD)",
-        "Placeholder", // placeholder 22
+        "No Handtap Cooldown",
         "ESP",
         "Trap All Modders (NT)(UD)",
         "Big And Small (CS)(UD)",
@@ -142,21 +145,24 @@ namespace ModMenuPatch.HarmonyPatches
         "Swim In Air",
         "Slingshot ALL (SS)(UD)",
         "Slingshot Self (SS)(UD)",
-        "HuntWatch Self (CS)",
         "Waterspam (Trigger)",
         "Waterspam GUN",
         "Teleport Rig To Random Player",
         "Fast Bug",
         "Super Fast Bug",
+        "Grab Bug",
         "Cool FPS Counter",
         "Water Gun",
         "Spam Water",
-        "Freeze ALL (D)",
+        "Big Water Splash (For Water Mods)",
         "Spin Monke (G)",
         "Heaven Monke (G)",
         "Spin Around Monke (G)",
         "Rape Gun",
         "Follow Movement Gun",
+        "Fast Trampoline Speed",
+        "Freeze ALL (D?)",
+        "No Tag On Join Pub (UD)",
     };
 
         private static bool?[] buttonsActive = new bool?[]
@@ -308,8 +314,7 @@ namespace ModMenuPatch.HarmonyPatches
 
         public static bool triggerpress2 { get; private set; }
 
-
-
+        public static string version = "1.5"; // Update whenever Update : - )
 
 
         private static void Prefix()
@@ -586,28 +591,28 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[38] == true)
                 {
-                    HuntwatchAll();
+                    OpMods.WaterSpam();
                 }
                 if (buttonsActive[39] == true)
                 {
-                    OpMods.WaterSpam();
+                    OpMods.WaterSpamGun();
                 }
                 if (buttonsActive[40] == true)
                 {
-                    OpMods.WaterSpamGun();
-                }
-                if (buttonsActive[41] == true)
-                {
                     TeleportRigToRandomPlayer();
                 }
-                if (buttonsActive[42] == true)
+                if (buttonsActive[41] == true)
                 { FastBug(true); }
                 else
                 { FastBug(false); }
+                if (buttonsActive[42] == true)
+                {
+                    OtherMods.SuperFastBug();
+                }
                 if (buttonsActive[43] == true)
-                { OtherMods.SuperFastBug(true); }
-                else
-                { OtherMods.SuperFastBug(false); }
+                {
+                    OtherMods.GrabBug();
+                }
                 if (buttonsActive[44] == true)
                 { FpsCounter(true); }
                 else
@@ -622,18 +627,7 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[47] == true)
                 {
-                    foreach (VRRig vrrig in Object.FindObjectsOfType<VRRig>())
-                    {
-                        foreach (MonkeyeAI_ReplState monkeyeAI_ReplState in Object.FindObjectsOfType<MonkeyeAI_ReplState>())
-                        {
-                            GorillaTagger.StatusEffect statusEffect = (GorillaTagger.StatusEffect)1;
-                            GorillaTagger.Instance.ApplyStatusEffect(statusEffect, GorillaTagger.Instance.tagCooldown);
-                            GorillaTagger.StatusEffect statusEffect2 = (GorillaTagger.StatusEffect)2;
-                            GorillaTagger.Instance.ApplyStatusEffect(statusEffect2, GorillaTagger.Instance.tagCooldown);
-
-                            monkeyeAI_ReplState.freezePlayer = true;
-                        }
-                    }
+                    OpMods.MakeWaterBig();
                 }
                 if (buttonsActive[48] == true)
                 {
@@ -655,16 +649,21 @@ namespace ModMenuPatch.HarmonyPatches
                 {
                     FollowMovement();
                 }
+                if (buttonsActive[53] == true)
+                {
+                    OpMods.TrampolineSpeed();
+                }
+                if (buttonsActive[54] == true)
+                {
+                    OpMods.FreezeAll();
+                }
+                if (buttonsActive[54] == true)
+                {
+                    OtherMods.NoTagOnJoin();
+                }
 
 
 
-
-
-
-
-
-
-                // Kosmos OP Mod Menu \\
                 if (btnCooldown > 0 && Time.frameCount > btnCooldown)
                 {
                     btnCooldown = 0;
@@ -2024,6 +2023,41 @@ true,
         }
 
 
+        public static void CheckVersion()
+        {
+            using (WebClient client = new WebClient())
+            {
+                if (client.DownloadString("https://pastebin.com/raw/VUL9VSHX").Contains(version))
+                {
+                    if (changedboards)
+                    {
+                        for (int i = 0; i < GorillaComputer.instance.levelScreens.Length; i++)
+                        {
+                            Material material = new Material(Shader.Find("Standard"));
+                            material.color = Color.black;
+                            string newText = "Thanks For Picking Kosmos Mod Menu!\nStatus: Probably Detected!\nYou Are Using An Outdated Version!\nCurrent Version: {version}\nDiscord: kosmos#0795";
+                            GorillaComputer.instance.levelScreens[i].goodMaterial = material;
+                            bool activeSelf = GameObject.Find("Level/lower level").activeSelf;
+                            if (activeSelf)
+                            {
+                                GameObject.Find("Level/lower level/mirror (1)").SetActive(true);
+                                GameObject.Find("Level/lower level/StaticUnlit/motdscreen").GetComponent<Renderer>().material = material;
+                                GameObject.Find("Level/lower level/UI/-- PhysicalComputer UI --/monitor").GetComponent<Renderer>().material = material;
+                                GameObject.Find("Level/lower level/StaticUnlit/screen").GetComponent<Renderer>().material = material;
+                                GameObject.Find("Level/lower level/UI/CodeOfConduct").GetComponent<Text>().text = "[<color=yellow>KOSMOS NEWS</color>]";
+                                GameObject.Find("Level/lower level/UI/CodeOfConduct/COC Text").GetComponent<Text>().text = newText;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+
+
         private static void GiveSlingshot()
         {
             WardrobeItemButton[] array = (from g in Object.FindObjectsOfType(typeof(WardrobeItemButton))
@@ -2268,6 +2302,7 @@ true,
                     {
                         GorillaTagger.Instance.myVRRig.enabled = false;
                         GorillaTagger.Instance.myVRRig.transform.position = FindVRRigForPlayer(raycastHit.collider.GetComponentInParent<PhotonView>().Owner).transform.position;
+                        OtherMods.instatag();
                         PhotonView.Get(GorillaGameManager.instance.GetComponent<GorillaGameManager>()).RPC("ReportTagRPC", RpcTarget.All, raycastHit.collider.GetComponentInParent<PhotonView>().Owner);
                         GorillaTagger.Instance.myVRRig.enabled = true;
                     }
@@ -2312,14 +2347,12 @@ true,
         {
             if (enable)
             {
-                Vector3 targetPosition = new Vector3(-66.7623f, 11.5f, -82.4813f);
-
                 foreach (MeshCollider meshCollider in Resources.FindObjectsOfTypeAll<MeshCollider>())
                 {
                     meshCollider.enabled = false;
                 }
 
-                GorillaLocomotion.Player.Instance.transform.position = targetPosition;
+                GorillaLocomotion.Player.Instance.transform.position = new Vector3(-66.7623f, 11.5f, -82.4813f);
             }
             else
             {
@@ -2363,7 +2396,7 @@ true,
                     gameObject.transform.rotation = Quaternion.identity;
                     gameObject.transform.localScale = new Vector3(0.04f, 200f, 0.04f);
                     gameObject.transform.position = vrrig.transform.position;
-                    gameObject.GetComponent<Renderer>().material.color = Color.cyan;
+                    gameObject.GetComponent<Renderer>().material.color = Color.blue;
                     Object.Destroy(gameObject, Time.deltaTime);
                 }
             }
@@ -2912,7 +2945,6 @@ true,
                         {
                             pointer.GetComponent<Renderer>().material.SetColor("_Color", purple);
                             GorillaTagger.Instance.myVRRig.enabled = false;
-                            GorillaTagger.Instance.myVRRig.transform.position = vrrig.transform.position;
                             GorillaTagger.Instance.rightHandTransform.transform.position = vrrig.headMesh.transform.position;
                             GorillaTagger.Instance.leftHandTransform.transform.position = vrrig.headMesh.transform.position;
                         }
@@ -2925,7 +2957,41 @@ true,
         }
 
 
+        public static VRRig GetClosestVrrig()
+        {
+            VRRig result = null;
+            float num = float.PositiveInfinity;
+            foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerListOthers)
+            {
+                bool flag = player != PhotonNetwork.LocalPlayer;
+                if (flag)
+                {
+                    VRRig vrrig = FindVRRigForPlayer(player);
+                    Vector3 vector = vrrig.transform.position - GorillaTagger.Instance.myVRRig.transform.position;
+                    bool flag2 = vector.magnitude < num;
+                    if (flag2)
+                    {
+                        result = vrrig;
+                        num = vector.magnitude;
+                    }
+                }
+            }
+            return result;
+        }
 
+        public static void AllSlingshots()
+        {
+            foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
+            {
+                bool flag = vrrig != null;
+                if (flag)
+                {
+                    CosmeticsController instance = CosmeticsController.instance;
+                    CosmeticsController.CosmeticItem itemFromDict = instance.GetItemFromDict("Slingshot");
+                    instance.ApplyCosmeticItemToSet(vrrig.cosmeticSet, itemFromDict, true, false);
+                }
+            }
+        }
 
         private static void ProcessBigMonke(bool enable)
         {
@@ -3520,10 +3586,12 @@ true,
         public static void Draw()
         {
 
-
             bool check = !changedboards;
             if (check)
             {
+                // Built In NameTag
+                OtherMods.Nametags();
+                // :)
                 for (int i = 0; i < GorillaComputer.instance.levelScreens.Length; i++)
                 {
                     Material material = new Material(Shader.Find("Standard"));
@@ -3541,6 +3609,8 @@ true,
                         GameObject.Find("Level/lower level/UI/CodeOfConduct/COC Text").GetComponent<Text>().text = newText;
                         // AntiBan
                         UnityEngine.Object.Destroy(GameObject.Find("Global/Photon Manager/GorillaReporter").GetComponent<GorillaNot>());
+                        // Checks Menu Version!
+                        CheckVersion();
                     }
                 }
                 changedboards = true;
@@ -3752,6 +3822,7 @@ true,
                 UnityEngine.Object.Destroy(menu);
                 menu = null;
                 Draw();
+
             }
         }
     }
