@@ -84,21 +84,27 @@ namespace KosmosGUI
 
         public static Color lightPurple = new Color(0.75f, 0.3f, 1f, 1f);
 
+
+
+        private static bool FastBugOnorOff = false;
+        private static bool SuperFastBugOnorOff = false;
         private static void FastBug(bool enable)
         {
+            bool FastBug;
             if (enable)
             {
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().maxNaturalSpeed = 10f;
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobingSpeed = 12f;
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobMagnintude = 1.2f;
             }
-            else
+            else if (!enable && !SuperFastBugOnorOff)
             {
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().maxNaturalSpeed = 1f;
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobingSpeed = 3f;
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobMagnintude = 0.3f;
             }
         }
+
         private static void SuperFastBug(bool enable)
         {
             if (enable)
@@ -106,14 +112,17 @@ namespace KosmosGUI
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().maxNaturalSpeed = 10f;
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobingSpeed = 12f;
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobMagnintude = 1.2f;
+                SuperFastBugOnorOff = true;
             }
-            else
+            else if (!enable && !FastBugOnorOff)
             {
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().maxNaturalSpeed = 1f;
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobingSpeed = 3f;
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobMagnintude = 0.3f;
+                SuperFastBugOnorOff = false;
             }
         }
+
 
 
         private static string testphototshit()
@@ -429,7 +438,7 @@ namespace KosmosGUI
             "Disconnect",
             "Keyboard Movement",
             "Fast Bug",
-            "PlaceHolder",
+            "Super Fast Bug",
             "PlaceHolder"
         };
     }
