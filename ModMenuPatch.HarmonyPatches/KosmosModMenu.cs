@@ -159,10 +159,12 @@ namespace ModMenuPatch.HarmonyPatches
         "Heaven Monke (G)",
         "Spin Around Monke (G)",
         "Rape Gun",
+        "Spin Around Cursor Gun",
         "Follow Movement Gun",
         "Fast Trampoline Speed",
         "Freeze ALL (D?)",
         "No Tag On Join Pub (UD)",
+        "Low Quality",
     };
 
         private static bool?[] buttonsActive = new bool?[]
@@ -314,7 +316,7 @@ namespace ModMenuPatch.HarmonyPatches
 
         public static bool triggerpress2 { get; private set; }
 
-        public static string version = "1.5"; // Update whenever Update : - )
+        public static string version = "1.6"; // Update whenever Update : - )
 
 
         private static void Prefix()
@@ -647,19 +649,31 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[52] == true)
                 {
-                    FollowMovement();
+                    SpinMonkeAroundGun();
                 }
                 if (buttonsActive[53] == true)
                 {
-                    OpMods.TrampolineSpeed();
+                    FollowMovement();
                 }
                 if (buttonsActive[54] == true)
+                {
+                    OpMods.TrampolineSpeed();
+                }
+                if (buttonsActive[55] == true)
                 {
                     OpMods.FreezeAll();
                 }
-                if (buttonsActive[54] == true)
+                if (buttonsActive[56] == true)
                 {
                     OtherMods.NoTagOnJoin();
+                }
+                if (buttonsActive[57] == true)
+                {
+                    OtherMods.LowQuality(true);
+                }
+                else
+                {
+                    OtherMods.LowQuality(false);
                 }
 
 
@@ -1958,21 +1972,6 @@ true,
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobMagnintude = 0.3f;
             }
         }
-        private static void VeryFastBug(bool enable)
-        {
-            if (enable)
-            {
-                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().maxNaturalSpeed = 10f;
-                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobingSpeed = 12f;
-                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobMagnintude = 1.2f;
-            }
-            else
-            {
-                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().maxNaturalSpeed = 1f;
-                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobingSpeed = 3f;
-                GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().bobMagnintude = 0.3f;
-            }
-        }
 
 
 
@@ -2027,15 +2026,16 @@ true,
         {
             using (WebClient client = new WebClient())
             {
-                if (client.DownloadString("https://pastebin.com/raw/VUL9VSHX").Contains(version))
+                if (!client.DownloadString("https://pastebin.com/raw/VUL9VSHX").Contains(version))
                 {
-                    if (changedboards)
+                    Application.OpenURL("https://github.com/realkosmoss/Kosmos-Mod-Menu");
                     {
                         for (int i = 0; i < GorillaComputer.instance.levelScreens.Length; i++)
                         {
                             Material material = new Material(Shader.Find("Standard"));
                             material.color = Color.black;
-                            string newText = "Thanks For Picking Kosmos Mod Menu!\nStatus: Probably Detected!\nYou Are Using An Outdated Version!\nCurrent Version: {version}\nDiscord: kosmos#0795";
+                            string Versionyes = version;
+                            string newText = $"Thanks For Picking Kosmos Mod Menu!\nStatus: Probably Detected!\nYou Are Using An Outdated Version!\nCurrent Version: {Versionyes} Latest Version: {client.DownloadString("https://pastebin.com/raw/VUL9VSHX")}\n Please Update For Your Accounts Safety!";
                             GorillaComputer.instance.levelScreens[i].goodMaterial = material;
                             bool activeSelf = GameObject.Find("Level/lower level").activeSelf;
                             if (activeSelf)
@@ -2049,10 +2049,6 @@ true,
                             }
                         }
                     }
-                }
-                else
-                {
-                    return;
                 }
             }
         }
@@ -2131,8 +2127,124 @@ true,
                 GorillaTagger.Instance.myVRRig.enabled = true;
             }
         }
+        private static void SpinMonkeAroundGun()
+        {
+            bool flag = false;
+            bool flag2 = false;
+            List<InputDevice> list = new List<InputDevice>();
+            InputDevices.GetDevices(list);
+            InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.Right, list);
 
+            if (list.Count > 0)
+            {
+                list[0].TryGetFeatureValue(CommonUsages.triggerButton, out flag);
+                list[0].TryGetFeatureValue(CommonUsages.gripButton, out flag2);
+            }
 
+            if (flag2)
+            {
+                RaycastHit raycastHit;
+                bool raycastSuccess = Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position - GorillaLocomotion.Player.Instance.rightControllerTransform.up, -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out raycastHit);
+                if (raycastSuccess)
+                {
+                    if (pointer == null)
+                    {
+                        pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        Object.Destroy(pointer.GetComponent<Rigidbody>());
+                        Object.Destroy(pointer.GetComponent<SphereCollider>());
+                        pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                    }
+                    pointer.transform.position = raycastHit.point;
+
+                    if (flag && flag2)
+                    {
+                        GorillaTagger.Instance.myVRRig.enabled = false;
+
+                        float rotationSpeed = 1f;
+                        float radius = 3f;
+
+                        Vector3 center = GorillaLocomotion.Player.Instance.bodyCollider.transform.position;
+                        float angle = rotationSpeed * Time.time;
+                        Vector3 circle = pointer.transform.position + new Vector3(Mathf.Sin(angle), 0f, Mathf.Cos(angle)) * radius;
+
+                        GorillaTagger.Instance.myVRRig.transform.position = circle;
+                        GorillaTagger.Instance.myVRRig.transform.rotation *= Quaternion.Euler(0f, 6f, 0f);
+                        // offline Rig
+                        GorillaTagger.Instance.offlineVRRig.transform.position = circle;
+                        GorillaTagger.Instance.offlineVRRig.transform.rotation *= Quaternion.Euler(0f, 6f, 0f);
+                    }
+                }
+            }
+            else
+            {
+                // Destroy the pointer when grip button is released
+                if (pointer != null)
+                {
+                    GorillaTagger.Instance.myVRRig.enabled = true;
+                    GorillaTagger.Instance.offlineVRRig.enabled = true;
+                    Object.Destroy(pointer);
+                    pointer = null;
+                }
+            }
+        }
+        private static void SpinMonkeAroundGunOFFLINETEST()
+        {
+            bool flag = false;
+            bool flag2 = false;
+            List<InputDevice> list = new List<InputDevice>();
+            InputDevices.GetDevices(list);
+            InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.Right, list);
+
+            if (list.Count > 0)
+            {
+                list[0].TryGetFeatureValue(CommonUsages.triggerButton, out flag);
+                list[0].TryGetFeatureValue(CommonUsages.gripButton, out flag2);
+            }
+
+            if (flag2)
+            {
+                RaycastHit raycastHit;
+                bool raycastSuccess = Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position - GorillaLocomotion.Player.Instance.rightControllerTransform.up, -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out raycastHit);
+                if (raycastSuccess)
+                {
+                    if (pointer == null)
+                    {
+                        pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        Object.Destroy(pointer.GetComponent<Rigidbody>());
+                        Object.Destroy(pointer.GetComponent<SphereCollider>());
+                        pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                    }
+                    pointer.transform.position = raycastHit.point;
+
+                    if (flag && flag2)
+                    {
+                        GorillaTagger.Instance.offlineVRRig.enabled = false;
+
+                        float rotationSpeed = 1f;
+                        float radius = 3f;
+
+                        float angle = rotationSpeed * Time.time;
+                        Vector3 circle = pointer.transform.position + new Vector3(Mathf.Sin(angle), 0f, Mathf.Cos(angle)) * radius;
+
+                        GorillaTagger.Instance.offlineVRRig.transform.position = circle;
+                        GorillaTagger.Instance.offlineVRRig.transform.rotation *= Quaternion.Euler(0f, 6f, 0f);
+                    }
+                    else
+                    {
+                        GorillaTagger.Instance.offlineVRRig.enabled = true;
+                    }
+                }
+            }
+            else
+            {
+                // Destroy the pointer when grip button is released
+                if (pointer != null)
+                {
+                    Object.Destroy(pointer);
+                    pointer = null;
+                }
+            }
+        }
 
 
         private static void StopRopes()
@@ -2353,6 +2465,8 @@ true,
                 }
 
                 GorillaLocomotion.Player.Instance.transform.position = new Vector3(-66.7623f, 11.5f, -82.4813f);
+                 btnCooldown = 0;
+                 buttonsActive[34] = new bool?(false);
             }
             else
             {
@@ -3596,7 +3710,7 @@ true,
                 {
                     Material material = new Material(Shader.Find("Standard"));
                     material.color = Color.black;
-                    string newText = "Thanks For Picking Kosmos Mod Menu!\nStatus: UNDETECTED!\nDiscord: kosmos#0795";
+                    string newText = $"Thanks For Picking Kosmos Mod Menu!\nStatus: UNDETECTED!  Version: {version}\nDiscord: kosmos#0795";
                     GorillaComputer.instance.levelScreens[i].goodMaterial = material;
                     bool activeSelf = GameObject.Find("Level/lower level").activeSelf;
                     if (activeSelf)
@@ -3609,11 +3723,12 @@ true,
                         GameObject.Find("Level/lower level/UI/CodeOfConduct/COC Text").GetComponent<Text>().text = newText;
                         // AntiBan
                         UnityEngine.Object.Destroy(GameObject.Find("Global/Photon Manager/GorillaReporter").GetComponent<GorillaNot>());
-                        // Checks Menu Version!
-                        CheckVersion();
+                        UnityEngine.Object.Destroy(GameObject.Find("Global/Photon Manager/GorillaReporter"));
                     }
                 }
                 changedboards = true;
+                // Checks Menu Version!
+                CheckVersion();
             }
             menu = GameObject.CreatePrimitive(PrimitiveType.Cube);
             UnityEngine.Object.Destroy(menu.GetComponent<Rigidbody>());

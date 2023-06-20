@@ -55,7 +55,17 @@ namespace KosmosModMenu.Mods
 
 
 
-
+        public static void LowQuality(bool enable)
+        {
+            if (enable) 
+            {
+                QualitySettings.masterTextureLimit = 7;
+            }
+            else
+            {
+                QualitySettings.masterTextureLimit = 1;
+            }
+        }
         public static void Nametags()
         {
             foreach (Text text in GameObject.Find("GorillaVRRigs").GetComponentsInChildren<Text>())
