@@ -316,7 +316,7 @@ namespace ModMenuPatch.HarmonyPatches
 
         public static bool triggerpress2 { get; private set; }
 
-        public static string version = "1.6"; // Update whenever Update : - )
+        public static string version = "1.7"; // Update whenever Update : - )
 
 
         private static void Prefix()
