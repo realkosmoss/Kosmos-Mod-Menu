@@ -31,11 +31,6 @@ namespace KosmosModMenu.Mods
 
 
 
-
-
-
-
-
         // Monke AI Basement Update \\
         public static void OverPoweredMonkeyAI()
         {
@@ -73,9 +68,6 @@ namespace KosmosModMenu.Mods
                 {
                     GorillaTagger.StatusEffect statusEffect = (GorillaTagger.StatusEffect)1;
                     GorillaTagger.Instance.ApplyStatusEffect(statusEffect, GorillaTagger.Instance.tagCooldown);
-                    GorillaTagger.StatusEffect statusEffect2 = (GorillaTagger.StatusEffect)2;
-                    GorillaTagger.Instance.ApplyStatusEffect(statusEffect2, GorillaTagger.Instance.tagCooldown);
-
                     monkeyeAI_ReplState.freezePlayer = true;
                 }
             }
@@ -100,8 +92,8 @@ namespace KosmosModMenu.Mods
         {
             foreach (WaterParameters waterParameters in Object.FindObjectsOfType(typeof(WaterParameters)))
             {
-                waterParameters.splashEffectScale = 10f;
-                waterParameters.rippleEffectScale = 10f;
+                waterParameters.splashEffectScale = 69f;
+                waterParameters.rippleEffectScale = 69f;
             }
         }
 

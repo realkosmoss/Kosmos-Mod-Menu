@@ -46,7 +46,8 @@ namespace KosmosGUI
             if (!CloseGUI)
             {
                 // the background of the gui
-                GUI.Box(new Rect(30f, 50f, 165, 140f), "Kosmos GUI -- Press Z On Your Keyboard To DeActivate PunchMod!");
+                GUI.Box(new Rect(30f, 50f, 165, 140f), "Kosmos GUI");
+                GUI.Button(new Rect(50f, 25f, 200f, 25f), "Press Z To Deactivate PunchMod");
 
                 // this creates all the buttons on the gui
                 modActive[0] = GUI.Toggle(new Rect(50f, 65f, 500f, 25f), modActive[0], modNames[0]);
@@ -67,6 +68,14 @@ namespace KosmosGUI
                 if (modActive[2])
                 {
                     ProcessKeyboardMovement();
+                }
+                if (modActive[3])
+                {
+                    spamwater();
+                }
+                if (modActive[4])
+                {
+                    PhotonNetwork.ConnectToBestCloudServer();
                 }
             }
         }
@@ -429,8 +438,8 @@ namespace KosmosGUI
             "Quit Gorilla Tag",
             "Disconnect",
             "Keyboard Movement",
-            "",
-            "",
+            "Spam Water",
+            "Less Ping",
             "PlaceHolder"
         };
     }
