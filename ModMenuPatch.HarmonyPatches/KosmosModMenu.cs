@@ -139,7 +139,7 @@ namespace ModMenuPatch.HarmonyPatches
         "All Cosmetics (CS)(UD)",
         "Tag ALL (UD)",
         "Tag Gun (UD)",
-        "Tag Aura (D!)",
+        "Tag Aura (UD)",
         "Nametags",
         "Teleport To Stump (UD)",
         "Swim In Air",
@@ -316,7 +316,7 @@ namespace ModMenuPatch.HarmonyPatches
 
         public static bool triggerpress2 { get; private set; }
 
-        public static string version = "1.8"; // Update whenever Update : - )
+        public static string version = "1.9"; // Update whenever Update : - )
 
 
         private static void Prefix()
@@ -630,6 +630,8 @@ namespace ModMenuPatch.HarmonyPatches
                 if (buttonsActive[47] == true)
                 {
                     OpMods.MakeWaterBig();
+                    btnCooldown = 0;
+                    buttonsActive[47] = false;
                 }
                 if (buttonsActive[48] == true)
                 {
@@ -675,8 +677,6 @@ namespace ModMenuPatch.HarmonyPatches
                 {
                     OtherMods.LowQuality(false);
                 }
-
-
 
                 if (btnCooldown > 0 && Time.frameCount > btnCooldown)
                 {
@@ -829,6 +829,25 @@ namespace ModMenuPatch.HarmonyPatches
                 GorillaTagger.Instance.myVRRig.enabled = true;
             }
         }
+
+
+
+
+        private static GorillaPlayerScoreboardLine FindPlayerScoreboardLine(Photon.Realtime.Player player)
+        {
+            GorillaPlayerScoreboardLine[] scoreboardLines = Object.FindObjectsOfType<GorillaPlayerScoreboardLine>();
+
+            foreach (GorillaPlayerScoreboardLine scoreboardLine in scoreboardLines)
+            {
+                if (scoreboardLine.linePlayer == player)
+                {
+                    return scoreboardLine;
+                }
+            }
+
+            return null;
+        }
+
 
 
 
@@ -3821,7 +3840,14 @@ true,
         }
 
 
+
+
         // spidermonke bullfucking shit \\
+
+        public static GorillaNetworkJoinTrigger trigger = new GorillaNetworkJoinTrigger();
+        public static GorillaFriendCollider collider = new GorillaFriendCollider();
+
+
         public static bool changedboards = false;
         public static bool lefttriggerpressed;
         public static bool triggerpressed;
