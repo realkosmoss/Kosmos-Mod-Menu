@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 using KosmosModMenu.Mods;
+using PunchMod;
 
 namespace ModMenuPatch.HarmonyPatches
 {
@@ -13,6 +14,8 @@ namespace ModMenuPatch.HarmonyPatches
             gameObject = new GameObject("KosmosThingy");
             Object.DontDestroyOnLoad(gameObject);
 
+            gameObject.AddComponent(typeof(PunchMod.Plugin));
+            gameObject.AddComponent(typeof(PunchHandManager));
             gameObject.AddComponent(typeof(Tracker.tracker));
             gameObject.AddComponent(typeof(KosmosGUI.Plugin));
             gameObject.AddComponent(typeof(NotPatch));

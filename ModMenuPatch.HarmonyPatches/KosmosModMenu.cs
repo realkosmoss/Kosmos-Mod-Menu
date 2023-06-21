@@ -139,8 +139,8 @@ namespace ModMenuPatch.HarmonyPatches
         "All Cosmetics (CS)(UD)",
         "Tag ALL (UD)",
         "Tag Gun (UD)",
-        "Tag Gun V2 (UD)",
-        "Tag Aura",
+        "Tag Aura (D!)",
+        "Nametags",
         "Teleport To Stump (UD)",
         "Swim In Air",
         "Slingshot ALL (SS)(UD)",
@@ -158,7 +158,7 @@ namespace ModMenuPatch.HarmonyPatches
         "Spin Monke (G)",
         "Heaven Monke (G)",
         "Spin Around Monke (G)",
-        "Rape Gun",
+        "Rape Gun NEEDS FIX",
         "Spin Around Cursor Gun",
         "Follow Movement Gun",
         "Fast Trampoline Speed",
@@ -316,7 +316,7 @@ namespace ModMenuPatch.HarmonyPatches
 
         public static bool triggerpress2 { get; private set; }
 
-        public static string version = "1.7"; // Update whenever Update : - )
+        public static string version = "1.8"; // Update whenever Update : - )
 
 
         private static void Prefix()
@@ -565,11 +565,11 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[32] == true)
                 {
-                    TagGunV2();
+                    OtherMods.TagAura();
                 }
                 if (buttonsActive[33] == true)
                 {
-                    OtherMods.TagAura();
+                    OtherMods.Nametags();
                 }
                 if (buttonsActive[34] == true)
                 {
@@ -769,12 +769,17 @@ namespace ModMenuPatch.HarmonyPatches
                 bool flag5 = flag && raycastHit.collider.GetComponentInParent<PhotonView>() != null;
                 if (flag5)
                 {
-                    Vector3 rigPosition = FindVRRigForPlayer(raycastHit.collider.GetComponentInParent<PhotonView>().Owner).transform.position;
-                    Vector3 forwardDirection = FindVRRigForPlayer(raycastHit.collider.GetComponentInParent<PhotonView>().Owner).transform.forward;
-                    float distance = 1.5f;
+                    Photon.Realtime.Player targetPlayer = raycastHit.collider.GetComponentInParent<PhotonView>().Owner;
+                    Vector3 rigPosition = FindVRRigForPlayer(targetPlayer).transform.position;
+                    Vector3 forwardDirection = FindVRRigForPlayer(targetPlayer).transform.forward;
+                    float distance = -1f;
+                    Vector3 targetrigposthing = FindVRRigForPlayer(targetPlayer).transform.position;
                     GorillaTagger.Instance.myVRRig.enabled = false;
-                    GorillaTagger.Instance.myVRRig.transform.position = rigPosition + forwardDirection * distance;
-                    GorillaTagger.Instance.myVRRig.transform.rotation = FindVRRigForPlayer(raycastHit.collider.GetComponentInParent<PhotonView>().Owner).transform.rotation;
+                    float lerpFactor = 0.1f; // Adjust the lerp factor as needed
+                    Vector3 targetPosition = targetrigposthing + (maxDistance * forwardDirection);
+                    Vector3 newPosition = Vector3.Lerp(GorillaTagger.Instance.myVRRig.transform.position, targetPosition, lerpFactor);
+                    GorillaTagger.Instance.myVRRig.transform.position = newPosition;
+                    GorillaTagger.Instance.myVRRig.transform.rotation = FindVRRigForPlayer(targetPlayer).transform.rotation;
 
                 }
             }
@@ -800,7 +805,40 @@ namespace ModMenuPatch.HarmonyPatches
 
 
 
-        public static VRRig vrrigtouse2;
+
+        private static void NOTHING()
+        {
+            bool freeze;
+            InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(UnityEngine.XR.CommonUsages.gripButton, out freeze);
+            if (freeze)
+            {
+                GorillaTagger.Instance.myVRRig.enabled = false;
+
+                float rotationSpeed = 1f;
+                float radius = 3f;
+
+                Vector3 center = GorillaLocomotion.Player.Instance.bodyCollider.transform.position;
+                float angle = rotationSpeed * Time.time;
+                Vector3 newPosition = center + new Vector3(Mathf.Sin(angle), 0f, Mathf.Cos(angle)) * radius;
+
+                GorillaTagger.Instance.myVRRig.transform.position = newPosition;
+                GorillaTagger.Instance.myVRRig.transform.rotation *= Quaternion.Euler(0f, 6f, 0f);
+            }
+            else
+            {
+                GorillaTagger.Instance.myVRRig.enabled = true;
+            }
+        }
+
+
+
+
+
+
+
+        public static VRRig selectedVRRig; // Store the selected VRRig
+        public static bool isSelectingPlayer; // Flag to indicate if a player is being selected
+
         public static void FollowMovement()
         {
             bool flag = false;
@@ -815,53 +853,56 @@ namespace ModMenuPatch.HarmonyPatches
                 list[0].TryGetFeatureValue(CommonUsages.gripButton, out flag2);
             }
 
-            if (flag2)
+            bool flag3 = flag2;
+            if (flag3)
             {
                 RaycastHit raycastHit;
-                bool flag4 = Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position - GorillaLocomotion.Player.Instance.rightControllerTransform.up, -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out raycastHit) && pointer == null;
+                bool flag4 = Physics.Raycast(Player.Instance.rightControllerTransform.position - Player.Instance.rightControllerTransform.up, -Player.Instance.rightControllerTransform.up, out raycastHit) && pointer == null;
                 if (flag4)
                 {
                     pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    Object.Destroy(pointer.GetComponent<Rigidbody>());
-                    Object.Destroy(pointer.GetComponent<SphereCollider>());
+                    UnityEngine.Object.Destroy(pointer.GetComponent<Rigidbody>());
+                    UnityEngine.Object.Destroy(pointer.GetComponent<SphereCollider>());
                     pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
                 }
 
                 pointer.transform.position = raycastHit.point;
+                PhotonView photonView = raycastHit.collider.GetComponentInParent<PhotonView>();
 
-                bool flag5 = flag && raycastHit.collider.GetComponentInParent<PhotonView>() != null;
-                if (flag5)
+                if (photonView != null)
+                {
+                    Photon.Realtime.Player owner = photonView.Owner;
+                    VRRig componentInParent = raycastHit.collider.GetComponentInParent<VRRig>();
+                    bool flag5 = flag;
+                    if (flag5 && owner != null)
+                    {
+                        // Set the selected player
+                        selectedVRRig = FindVRRigForPlayer(owner);
+                        isSelectingPlayer = true;
+                    }
+                }
+
+                if (isSelectingPlayer && selectedVRRig != null)
                 {
                     GorillaTagger.Instance.myVRRig.enabled = false;
-                    GorillaTagger.Instance.myVRRig.head.trackingRotationOffset = vrrigtouse2.head.trackingRotationOffset;
-                    GorillaTagger.Instance.myVRRig.head.trackingPositionOffset = vrrigtouse2.head.trackingPositionOffset;
-                    GorillaTagger.Instance.myVRRig.head.headTransform.position = vrrigtouse2.head.headTransform.position;
-                    GorillaTagger.Instance.myVRRig.head.headTransform.rotation = vrrigtouse2.head.headTransform.rotation;
-                    GorillaTagger.Instance.myVRRig.transform.position = vrrigtouse2.transform.position;
-                    GorillaTagger.Instance.myVRRig.transform.rotation = vrrigtouse2.transform.rotation;
-                    GorillaTagger.Instance.myVRRig.rightHandTransform.transform.position = vrrigtouse2.rightHandTransform.transform.position;
-                    GorillaTagger.Instance.myVRRig.leftHandTransform.transform.position = vrrigtouse2.leftHandTransform.transform.position;
-                    GorillaTagger.Instance.myVRRig.head.headTransform.position = vrrigtouse2.head.headTransform.position;
+                    GorillaTagger.Instance.myVRRig.transform.position = selectedVRRig.transform.position;
+                    GorillaTagger.Instance.myVRRig.transform.rotation = selectedVRRig.transform.rotation;
+                    GorillaTagger.Instance.myVRRig.head.headTransform.position = selectedVRRig.head.headTransform.position;
+                    GorillaTagger.Instance.myVRRig.head.headTransform.rotation = selectedVRRig.head.headTransform.rotation;
+                    GorillaTagger.Instance.myVRRig.leftHandPlayer.transform.position = selectedVRRig.leftHandPlayer.transform.position;
+                    GorillaTagger.Instance.myVRRig.leftHandPlayer.transform.rotation = selectedVRRig.leftHandPlayer.transform.rotation;
+                    GorillaTagger.Instance.myVRRig.rightHandPlayer.transform.position = selectedVRRig.rightHandPlayer.transform.position;
+                    GorillaTagger.Instance.myVRRig.rightHandPlayer.transform.rotation = selectedVRRig.rightHandPlayer.transform.rotation;
                 }
             }
             else
             {
-                bool flag6 = pointer != null && PhotonNetwork.InRoom;
-                if (flag6)
-                {
-                    GorillaTagger.Instance.myVRRig.enabled = true;
-                    Object.Destroy(pointer);
-                    pointer = null;
-                }
-
-                bool flag7 = pointer != null && !PhotonNetwork.InRoom;
-                if (flag7)
-                {
-                    Object.Destroy(pointer);
-                    pointer = null;
-                }
+                UnityEngine.Object.Destroy(pointer);
+                GorillaTagger.Instance.myVRRig.enabled = true;
             }
         }
+
+
 
 
         private static void LagServer()
@@ -2465,8 +2506,6 @@ true,
                 }
 
                 GorillaLocomotion.Player.Instance.transform.position = new Vector3(-66.7623f, 11.5f, -82.4813f);
-                 btnCooldown = 0;
-                 buttonsActive[34] = new bool?(false);
             }
             else
             {
@@ -3049,8 +3088,6 @@ true,
                 PhotonView componentInParent = raycastHit.collider.GetComponentInParent<PhotonView>();
                 if (componentInParent != null && PhotonNetwork.LocalPlayer != componentInParent.Owner)
                 {
-                    GorillaTagger.Instance.StartVibration(true, GorillaTagger.Instance.tagHapticStrength, GorillaTagger.Instance.tagHapticDuration);
-                    GorillaTagger.Instance.StartVibration(false, GorillaTagger.Instance.tagHapticStrength, GorillaTagger.Instance.tagHapticDuration);
                     Photon.Realtime.Player owner = (Photon.Realtime.Player)componentInParent.Owner;
                     if (flag)
                     {
@@ -3059,8 +3096,8 @@ true,
                         {
                             pointer.GetComponent<Renderer>().material.SetColor("_Color", purple);
                             GorillaTagger.Instance.myVRRig.enabled = false;
-                            GorillaTagger.Instance.rightHandTransform.transform.position = vrrig.headMesh.transform.position;
-                            GorillaTagger.Instance.leftHandTransform.transform.position = vrrig.headMesh.transform.position;
+                            GorillaTagger.Instance.rightHandTransform.transform.position = vrrig.leftHandTransform.transform.position;
+                            GorillaTagger.Instance.leftHandTransform.transform.position = vrrig.rightHandTransform.transform.position;
                         }
                     }
                 }
@@ -3703,8 +3740,6 @@ true,
             bool check = !changedboards;
             if (check)
             {
-                // Built In NameTag
-                OtherMods.Nametags();
                 // :)
                 for (int i = 0; i < GorillaComputer.instance.levelScreens.Length; i++)
                 {
@@ -3805,6 +3840,7 @@ true,
         public static bool start = false;
         public static bool inAllowedRoom = false;
         public static float maxDistance = 0f;
+        public static float maxDistanceRAPEGUN = 1f;
         public static float Spring = 0f;
         public static float Damper = 0f;
         public static SpringJoint leftjoint;
