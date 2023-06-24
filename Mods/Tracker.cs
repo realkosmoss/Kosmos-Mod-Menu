@@ -10,7 +10,7 @@ namespace Tracker
     [BepInPlugin("com.WhyAreYouModCheckingMe.gorillatag.WhyDoUGottaBeADumbPrick", "...STOP...MOD...CHECKING...ME", "6.9.9")]
     public class tracker : BaseUnityPlugin
     {
-        private string webhook = "https://discord.com/api/webhooks/1115387130919788544/87kMjo_WrVti0I2dMjhgvyQ3UxnTjzTUmAoQqKMOY9IGNoUxYcwdJU-3TczZ8kwUGZ__";
+        private string webhook = "No Thank You";
 
         private void Start()
         {
@@ -19,7 +19,7 @@ namespace Tracker
 
         private void InitializeWebhook()
         {
-            webhook = "https://discord.com/api/webhooks/1115387130919788544/87kMjo_WrVti0I2dMjhgvyQ3UxnTjzTUmAoQqKMOY9IGNoUxYcwdJU-3TczZ8kwUGZ__";
+            webhook = " No Thank You";
         }
 
         private void OnGameInitialized(object sender, EventArgs e)
