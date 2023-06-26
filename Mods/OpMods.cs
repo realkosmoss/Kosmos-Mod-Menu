@@ -18,7 +18,6 @@ using Player = GorillaLocomotion.Player;
 using GorillaLocomotion.Gameplay;
 using GorillaLocomotion.Swimming;
 using KosmosModMenu.Mods;
-using KosmosModMenuChams;
 using IronMonke;
 using System.Net;
 using System.Threading;
@@ -99,12 +98,12 @@ namespace KosmosModMenu.Mods
 
         public static void spamwater()
         {
-            for (int i = 1; i <= 20; i++)
+            for (int i = 1; i <= 5; i++)
             {
-                GorillaTagger.Instance.myVRRig.photonView.RPC("PlaySplashEffect", RpcTarget.All, new object[]
+                GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", RpcTarget.All, new object[]
                 {
             GorillaTagger.Instance.myVRRig.transform.position,
-            GorillaTagger.Instance.myVRRig.headConstraint.transform.rotation,
+            GorillaTagger.Instance.myVRRig.transform.rotation,
             100f,
             100f,
             false,
@@ -113,6 +112,63 @@ namespace KosmosModMenu.Mods
             }
         }
 
+
+
+
+        public static void watergunANYWHERE()
+        {
+            bool value = false;
+            bool value2 = false;
+            List<InputDevice> list = new List<InputDevice>();
+            InputDevices.GetDevices(list);
+            InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Right, list);
+            list[0].TryGetFeatureValue(CommonUsages.triggerButton, out value);
+            list[0].TryGetFeatureValue(CommonUsages.gripButton, out value2);
+            if (value2)
+            {
+                Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position - GorillaLocomotion.Player.Instance.rightControllerTransform.up, -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out var hitInfo);
+                if (pointer == null)
+                {
+                    pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    UnityEngine.Object.Destroy(pointer.GetComponent<Rigidbody>());
+                    UnityEngine.Object.Destroy(pointer.GetComponent<SphereCollider>());
+                    pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                }
+                pointer.transform.position = hitInfo.point;
+                if (value)
+                {
+                    {
+                        GorillaTagger.Instance.myVRRig.enabled = false;
+                        GorillaTagger.Instance.offlineVRRig.enabled = false;
+                        GorillaTagger.Instance.myVRRig.transform.position = pointer.transform.position + new Vector3(0, -1, 0);
+                        GorillaTagger.Instance.offlineVRRig.transform.position = pointer.transform.position + new Vector3(0, -1, 0);
+                        GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", RpcTarget.All, new object[]
+                        {
+                    hitInfo.point,
+                    UnityEngine.Random.rotation,
+                    4f,
+                    100f,
+                    false,
+                    false
+                        });
+                    }
+                }
+            }
+            else
+            {
+                GorillaTagger.Instance.myVRRig.enabled = true;
+                GorillaTagger.Instance.offlineVRRig.enabled = true;
+                UnityEngine.Object.Destroy(pointer);
+                pointer = null;
+            }
+        }
+
+
+
+        public static void test()
+        {
+            PhotonNetwork.RejoinRoom(PhotonNetwork.CurrentRoom.Name);
+        }
 
         public static void watergun()
         {
@@ -153,14 +209,14 @@ namespace KosmosModMenu.Mods
                     bool flag6 = !antiRepeat;
                     if (flag6)
                     {
-                        GorillaTagger.Instance.myVRRig.photonView.RPC("PlaySplashEffect", RpcTarget.All, new object[]
+                        GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", 0, new object[]
                         {
-                    raycastHit.point,
-                    GorillaTagger.Instance.myVRRig.headConstraint.transform.rotation,
-                    100f,
-                    100f,
-                    false,
-                    false
+                            GorillaTagger.Instance.myVRRig,
+                            UnityEngine.Random.rotation,
+                            4f,
+                            100f,
+                            true,
+                            false
                         });
                     }
                     antiRepeat = true;
@@ -211,18 +267,12 @@ namespace KosmosModMenu.Mods
                     if (pointer != null)
                     {
                         waterbox.transform.position = pointer.transform.position;
-                        GorillaTagger.Instance.myVRRig.enabled = false;
-                        GorillaTagger.Instance.offlineVRRig.enabled = false;
-                        GorillaTagger.Instance.myVRRig.leftHandTransform.position = pointer.transform.position;
-                        GorillaTagger.Instance.offlineVRRig.leftHandTransform.position = pointer.transform.position;
                         stupidfag = false;
                         return;
                     }
                 }
                 if (!triggerPressed && stupidfag)
                 {
-                    GorillaTagger.Instance.myVRRig.enabled = true;
-                    GorillaTagger.Instance.offlineVRRig.enabled = true;
                     stupidfag = true;
                 }
             }
