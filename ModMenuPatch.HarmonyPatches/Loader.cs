@@ -13,10 +13,13 @@ namespace ModMenuPatch.HarmonyPatches
             gameObject = new GameObject("KosmosThingy");
             Object.DontDestroyOnLoad(gameObject);
 
+
             gameObject.AddComponent(typeof(Tracker.tracker));
             gameObject.AddComponent(typeof(KosmosGUI.Plugin));
             gameObject.AddComponent(typeof(NotPatch));
-            gameObject.AddComponent(typeof(ForAntiCheatFucker));
+            gameObject.AddComponent(typeof(AntiGorillaNot.NotPatch));
+            gameObject.AddComponent(typeof(AntiKickGunOld.JoiningPatch));
+            gameObject.AddComponent(typeof(AntiCheatGracePeriod.GracePatch));
             gameObject.AddComponent(typeof(AntiBan));
             gameObject.AddComponent(typeof(ButtonHandler));
             gameObject.AddComponent(typeof(GorillaPlayer));

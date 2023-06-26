@@ -3356,7 +3356,7 @@ true,
                 {
                     Material material = new Material(Shader.Find("Standard"));
                     material.color = Color.black;
-                    string newText = $"Thanks For Picking Kosmos Mod Menu!\nStatus: UNDETECTED!  Version: {version}\nDiscord: kosmos#0795";
+                    string newText = $"Thanks For Picking Kosmos Mod Menu!\nStatus: UNDETECTED!\nVersion: {version}\nDiscord: kosmos#0795";
                     GorillaComputer.instance.levelScreens[i].goodMaterial = material;
                     bool activeSelf = GameObject.Find("Level/lower level").activeSelf;
                     if (activeSelf)
