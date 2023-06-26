@@ -18,7 +18,6 @@ using Player = GorillaLocomotion.Player;
 using GorillaLocomotion.Gameplay;
 using GorillaLocomotion.Swimming;
 using KosmosModMenu.Mods;
-using KosmosModMenuChams;
 using IronMonke;
 using System.Net;
 using System.Threading;
@@ -59,7 +58,7 @@ namespace KosmosModMenu.Mods
         {
             if (enable) 
             {
-                QualitySettings.masterTextureLimit = 7;
+                QualitySettings.masterTextureLimit = 5;
             }
             else
             {
@@ -95,7 +94,6 @@ namespace KosmosModMenu.Mods
                     {
                         PhotonView.Get(GorillaGameManager.instance.GetComponent<GorillaGameManager>()).RPC("ReportTagRPC", RpcTarget.Others, new object[]
                         {
-                        vrrig.photonView.Owner
                         });
                     }
                 }

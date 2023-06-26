@@ -18,16 +18,17 @@ using Player = GorillaLocomotion.Player;
 using GorillaLocomotion.Gameplay;
 using GorillaLocomotion.Swimming;
 using KosmosModMenu.Mods;
-using KosmosModMenuChams;
 using IronMonke;
 using System.Net;
 using System.Threading;
 using System.ComponentModel.Design;
+using ModsKosmosModMenuBoxESP;
+using PlayFab.MultiplayerModels;
 
 namespace ModMenuPatch.HarmonyPatches
 {
-    [HarmonyPatch(typeof(GorillaLocomotion.Player))]
-    [HarmonyPatch("LateUpdate", MethodType.Normal)]
+    [HarmonyPatch(typeof(Player))]
+    [HarmonyPatch("LateUpdate", 0)]
     internal class KosmosModMenu
     {
         public enum PhotonEventCodes
@@ -147,9 +148,9 @@ namespace ModMenuPatch.HarmonyPatches
         "Slingshot Self (SS)(UD)",
         "Waterspam (Trigger)",
         "Waterspam GUN",
-        "Teleport Rig To Random Player",
-        "Fast Bug",
-        "Super Fast Bug",
+        "Destroy Gun",
+        "Delete ALL",
+        "LAG ALL EXTREME BAN SELF AHAHAH",
         "Grab Bug",
         "Cool FPS Counter",
         "Water Gun",
@@ -165,6 +166,7 @@ namespace ModMenuPatch.HarmonyPatches
         "Freeze ALL (D?)",
         "No Tag On Join Pub (UD)",
         "Low Quality",
+        "Watergun TEST",
     };
 
         private static bool?[] buttonsActive = new bool?[]
@@ -316,7 +318,7 @@ namespace ModMenuPatch.HarmonyPatches
 
         public static bool triggerpress2 { get; private set; }
 
-        public static string version = "1.9"; // Update whenever Update : - )
+        public static string version = "2"; // Update whenever Update : - )
 
 
         private static void Prefix()
@@ -392,11 +394,7 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[5] == true)
                 {
-                    ProcessGhostMonke(true);
-                }
-                else
-                {
-                    ProcessGhostMonke(false);
+                    ProcessGhostMonke();
                 }
                 if (buttonsActive[6] == true)
                 {
@@ -460,7 +458,6 @@ namespace ModMenuPatch.HarmonyPatches
                     fastmonke(true);
                     bigmonke(true);
                     IronMonkePlugin.FixedUpdate(true);
-                    ProcessGhostMonke(true);
 
                 }
                 else
@@ -468,7 +465,6 @@ namespace ModMenuPatch.HarmonyPatches
                     fastmonke(false);
                     bigmonke(false);
                     IronMonkePlugin.FixedUpdate(false);
-                    ProcessGhostMonke(false);
                 }
                 if (buttonsActive[11] == true)
                 {
@@ -528,8 +524,8 @@ namespace ModMenuPatch.HarmonyPatches
                 { OtherMods.NoTapCoolDown(false); }
                 if (buttonsActive[23] == true)
                 {
-                    Chams chams = new Chams();
-                    chams.Update();
+                    BoxEsp boxesp = new BoxEsp();
+                    boxesp.Update();
                 }
                 if (buttonsActive[24] == true)
                 {
@@ -601,19 +597,19 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[40] == true)
                 {
-                    TeleportRigToRandomPlayer();
+                    
                 }
                 if (buttonsActive[41] == true)
-                { FastBug(true); }
-                else
-                { FastBug(false); }
+                {
+                    
+                }
                 if (buttonsActive[42] == true)
                 {
-                    OtherMods.SuperFastBug();
+
                 }
                 if (buttonsActive[43] == true)
                 {
-                    OtherMods.GrabBug();
+
                 }
                 if (buttonsActive[44] == true)
                 { FpsCounter(true); }
@@ -625,13 +621,11 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[46] == true)
                 {
-                    OpMods.spamwater();
+                    OpMods.WaterSpam();
                 }
                 if (buttonsActive[47] == true)
                 {
-                    OpMods.MakeWaterBig();
-                    btnCooldown = 0;
-                    buttonsActive[47] = false;
+
                 }
                 if (buttonsActive[48] == true)
                 {
@@ -655,7 +649,7 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[53] == true)
                 {
-                    FollowMovement();
+                    // Follow Movement Gun
                 }
                 if (buttonsActive[54] == true)
                 {
@@ -663,7 +657,7 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[55] == true)
                 {
-                    OpMods.FreezeAll();
+
                 }
                 if (buttonsActive[56] == true)
                 {
@@ -677,6 +671,16 @@ namespace ModMenuPatch.HarmonyPatches
                 {
                     OtherMods.LowQuality(false);
                 }
+                if (buttonsActive[58] == true)
+                {
+                    OpMods.watergunANYWHERE();
+                }
+
+
+
+
+
+
 
                 if (btnCooldown > 0 && Time.frameCount > btnCooldown)
                 {
@@ -803,7 +807,27 @@ namespace ModMenuPatch.HarmonyPatches
         }
 
 
-
+        public static VRRig GetClosestVrrig()
+        {
+            VRRig result = null;
+            float num = float.PositiveInfinity;
+            foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerListOthers)
+            {
+                bool flag = player != PhotonNetwork.LocalPlayer;
+                if (flag)
+                {
+                    VRRig vrrig = FindVRRigForPlayer(player);
+                    Vector3 vector = vrrig.transform.position - GorillaTagger.Instance.myVRRig.transform.position;
+                    bool flag2 = vector.magnitude < num;
+                    if (flag2)
+                    {
+                        result = vrrig;
+                        num = vector.magnitude;
+                    }
+                }
+            }
+            return result;
+        }
 
 
         private static void NOTHING()
@@ -855,75 +879,6 @@ namespace ModMenuPatch.HarmonyPatches
 
 
 
-        public static VRRig selectedVRRig; // Store the selected VRRig
-        public static bool isSelectingPlayer; // Flag to indicate if a player is being selected
-
-        public static void FollowMovement()
-        {
-            bool flag = false;
-            bool flag2 = false;
-            List<InputDevice> list = new List<InputDevice>();
-            InputDevices.GetDevices(list);
-            InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.Right, list);
-
-            if (list.Count > 0)
-            {
-                list[0].TryGetFeatureValue(CommonUsages.triggerButton, out flag);
-                list[0].TryGetFeatureValue(CommonUsages.gripButton, out flag2);
-            }
-
-            bool flag3 = flag2;
-            if (flag3)
-            {
-                RaycastHit raycastHit;
-                bool flag4 = Physics.Raycast(Player.Instance.rightControllerTransform.position - Player.Instance.rightControllerTransform.up, -Player.Instance.rightControllerTransform.up, out raycastHit) && pointer == null;
-                if (flag4)
-                {
-                    pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    UnityEngine.Object.Destroy(pointer.GetComponent<Rigidbody>());
-                    UnityEngine.Object.Destroy(pointer.GetComponent<SphereCollider>());
-                    pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-                }
-
-                pointer.transform.position = raycastHit.point;
-                PhotonView photonView = raycastHit.collider.GetComponentInParent<PhotonView>();
-
-                if (photonView != null)
-                {
-                    Photon.Realtime.Player owner = photonView.Owner;
-                    VRRig componentInParent = raycastHit.collider.GetComponentInParent<VRRig>();
-                    bool flag5 = flag;
-                    if (flag5 && owner != null)
-                    {
-                        // Set the selected player
-                        selectedVRRig = FindVRRigForPlayer(owner);
-                        isSelectingPlayer = true;
-                    }
-                }
-
-                if (isSelectingPlayer && selectedVRRig != null)
-                {
-                    GorillaTagger.Instance.myVRRig.enabled = false;
-                    GorillaTagger.Instance.myVRRig.transform.position = selectedVRRig.transform.position;
-                    GorillaTagger.Instance.myVRRig.transform.rotation = selectedVRRig.transform.rotation;
-                    GorillaTagger.Instance.myVRRig.head.headTransform.position = selectedVRRig.head.headTransform.position;
-                    GorillaTagger.Instance.myVRRig.head.headTransform.rotation = selectedVRRig.head.headTransform.rotation;
-                    GorillaTagger.Instance.myVRRig.leftHandPlayer.transform.position = selectedVRRig.leftHandPlayer.transform.position;
-                    GorillaTagger.Instance.myVRRig.leftHandPlayer.transform.rotation = selectedVRRig.leftHandPlayer.transform.rotation;
-                    GorillaTagger.Instance.myVRRig.rightHandPlayer.transform.position = selectedVRRig.rightHandPlayer.transform.position;
-                    GorillaTagger.Instance.myVRRig.rightHandPlayer.transform.rotation = selectedVRRig.rightHandPlayer.transform.rotation;
-                }
-            }
-            else
-            {
-                UnityEngine.Object.Destroy(pointer);
-                GorillaTagger.Instance.myVRRig.enabled = true;
-            }
-        }
-
-
-
-
         private static void LagServer()
         {
             UnityEngine.Transform transform = FindVRRigForPlayer1(PhotonNetwork.LocalPlayer).mainCamera.transform;
@@ -942,40 +897,6 @@ namespace ModMenuPatch.HarmonyPatches
             }
         }
 
-        public static void lagservLUNAR()
-        {
-            for (int i = 0; i < 50; i++)
-            {
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                GorillaGameManager.instance.NewVRRig(PhotonNetwork.LocalPlayer, GorillaTagger.Instance.myVRRig.photonView.ViewID, false);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                GorillaGameManager.instance.NewVRRig(PhotonNetwork.LocalPlayer, GorillaTagger.Instance.myVRRig.photonView.ViewID, false);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                GorillaGameManager.instance.NewVRRig(PhotonNetwork.LocalPlayer, GorillaTagger.Instance.myVRRig.photonView.ViewID, false);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                GorillaGameManager.instance.NewVRRig(PhotonNetwork.LocalPlayer, GorillaTagger.Instance.myVRRig.photonView.ViewID, false);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                GorillaGameManager.instance.NewVRRig(PhotonNetwork.LocalPlayer, GorillaTagger.Instance.myVRRig.photonView.ViewID, false);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                GorillaGameManager.instance.NewVRRig(PhotonNetwork.LocalPlayer, GorillaTagger.Instance.myVRRig.photonView.ViewID, false);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                GorillaGameManager.instance.NewVRRig(PhotonNetwork.LocalPlayer, GorillaTagger.Instance.myVRRig.photonView.ViewID, false);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                GorillaGameManager.instance.NewVRRig(PhotonNetwork.LocalPlayer, GorillaTagger.Instance.myVRRig.photonView.ViewID, false);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                GorillaGameManager.instance.NewVRRig(PhotonNetwork.LocalPlayer, GorillaTagger.Instance.myVRRig.photonView.ViewID, false);
-                PhotonNetwork.Destroy(GorillaTagger.Instance.myVRRig.gameObject);
-                i = 0;
-            }
-        }
 
 
 
@@ -998,76 +919,6 @@ namespace ModMenuPatch.HarmonyPatches
 
 
 
-
-
-        private static void CrazyHead()
-        {
-            bool triggerPressed = false;
-            List<InputDevice> devices = new List<InputDevice>();
-            InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Right, devices);
-            devices[0].TryGetFeatureValue(CommonUsages.triggerButton, out triggerPressed);
-            if (triggerPressed)
-            {
-                VRMap head = GorillaTagger.Instance.myVRRig.head;
-                VRMap head2 = GorillaTagger.Instance.offlineVRRig.head;
-                head2.trackingRotationOffset.x = head2.trackingRotationOffset.x + 30f;
-                head2.trackingRotationOffset.y = head2.trackingRotationOffset.x + 30f;
-                head2.trackingRotationOffset.z = head2.trackingRotationOffset.x + 30f;
-                head.trackingRotationOffset.x = head.trackingRotationOffset.x + 30f;
-                head.trackingRotationOffset.y = head.trackingRotationOffset.x + 30f;
-                head.trackingRotationOffset.z = head.trackingRotationOffset.x + 30f;
-                GorillaTagger.Instance.offlineVRRig.leftHand.trackingRotationOffset.y = GorillaTagger.Instance.offlineVRRig.leftHand.trackingRotationOffset.y + 30f;
-                GorillaTagger.Instance.offlineVRRig.rightHand.trackingRotationOffset.y = GorillaTagger.Instance.offlineVRRig.leftHand.trackingRotationOffset.y + 30f;
-                GorillaTagger.Instance.myVRRig.leftHand.trackingRotationOffset.y = GorillaTagger.Instance.myVRRig.leftHand.trackingRotationOffset.y + 30f;
-                GorillaTagger.Instance.myVRRig.rightHand.trackingRotationOffset.y = GorillaTagger.Instance.myVRRig.leftHand.trackingRotationOffset.y + 30f;
-            }
-            else if (!triggerPressed)
-            {
-                VRMap head = GorillaTagger.Instance.myVRRig.head;
-                VRMap head2 = GorillaTagger.Instance.offlineVRRig.head;
-
-                head2.trackingRotationOffset = Vector3.zero;
-                head.trackingRotationOffset = Vector3.zero;
-                GorillaTagger.Instance.offlineVRRig.leftHand.trackingRotationOffset = new Vector3(-100f, -100f, -100f);
-                GorillaTagger.Instance.offlineVRRig.rightHand.trackingRotationOffset = new Vector3(-100f, -100f, -100f);
-                GorillaTagger.Instance.myVRRig.leftHand.trackingRotationOffset = new Vector3(-100f, -100f, -100f);
-                GorillaTagger.Instance.myVRRig.rightHand.trackingRotationOffset = new Vector3(-100f, -100f, -100f);
-            }
-        }
-
-
-        private static void WaterSplashTest()
-        {
-            bool triggerPressed = false;
-            List<InputDevice> devices = new List<InputDevice>();
-            InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Right, devices);
-            devices[0].TryGetFeatureValue(CommonUsages.triggerButton, out triggerPressed);
-
-            if (triggerPressed)
-            {
-                GorillaTagger.Instance.myVRRig.enabled = false;
-                GorillaTagger.Instance.offlineVRRig.enabled = false;
-                GorillaTagger.Instance.myVRRig.transform.position = new Vector3(-10 - 0, 5 - 40);
-                GorillaTagger.Instance.offlineVRRig.transform.position = new Vector3(-10 - 0, 5 - 40);
-            }
-            else if (!triggerPressed)
-            {
-                GorillaTagger.Instance.myVRRig.enabled = true;
-                GorillaTagger.Instance.offlineVRRig.enabled = true;
-            }
-        }
-
-        private static void HuntwatchAll()
-        {
-            VRRig vrrig = FindVRRigForPlayer(PhotonNetwork.LocalPlayer);
-            bool flag = vrrig != null;
-            if (flag)
-            {
-                UnityEngine.Transform transform = vrrig.mainCamera.transform;
-                transform = vrrig.mainCamera.transform;
-                PhotonNetwork.Instantiate("GorillaPrefabs/Gorilla Hunt Manager", transform.position, Quaternion.identity, 0, null);
-            }
-        }
 
 
 
@@ -1370,8 +1221,6 @@ namespace ModMenuPatch.HarmonyPatches
             {
                 foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerList)
                 {
-                    bool flag2 = !FindVRRigForPlayer(player).mainSkin.material.name.Contains("fected") && GorillaTagger.Instance.myVRRig.mainSkin.material.name.Contains("fected");
-                    if (flag2)
                     {
                         GorillaTagger.Instance.myVRRig.enabled = false;
                         GorillaTagger.Instance.myVRRig.transform.position = FindVRRigForPlayer(player).transform.position;
@@ -1529,87 +1378,10 @@ namespace ModMenuPatch.HarmonyPatches
 
 
 
-        private static void RopeFuckerGunFix()
-        {
-            {
-                bool flag9;
-                InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(CommonUsages.gripButton, out flag9);
-                bool flag10;
-                InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(CommonUsages.triggerButton, out flag10);
-                bool flag11 = !flag9;
-                if (flag11)
-                {
-                    Object.Destroy(pointer);
-                    pointer = null;
-                }
-                bool flag12 = flag9;
-                if (flag12)
-                {
-                    RaycastHit raycastHit2;
-                    Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandFollower.position - GorillaLocomotion.Player.Instance.rightHandFollower.position, -GorillaLocomotion.Player.Instance.rightHandFollower.position, out raycastHit2);
-                    bool flag13 = pointer == null;
-                    if (flag13)
-                    {
-                        pointer = GameObject.CreatePrimitive(0);
-                        Object.Destroy(pointer.GetComponent<Rigidbody>());
-                        Object.Destroy(pointer.GetComponent<SphereCollider>());
-                        pointer.transform.localScale = new Vector3(0.15f, 0.15f, 0.15f);
-                    }
-                    pointer.transform.position = raycastHit2.point;
-                    GorillaRopeSwing componentInParent2 = raycastHit2.collider.GetComponentInParent<GorillaRopeSwing>();
-                    bool flag14 = flag10;
-                    if (flag14)
-                    {
-                        componentInParent2.photonView.RequestOwnership();
-                        componentInParent2.photonView.TransferOwnership(PhotonNetwork.LocalPlayer);
-                        componentInParent2.photonView.ControllerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
-                        componentInParent2.SetVelocity_RPC(1, GorillaTagger.Instance.myVRRig.headConstraint.transform.forward * 5000f, true);
-                    }
-                }
-            }
-        }
 
 
 
-        public static void RopeVelocityGun()
-        {
-            bool flag;
-            InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(CommonUsages.gripButton, out flag);
-            bool flag2;
-            InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(CommonUsages.triggerButton, out flag2);
-            bool flag3 = !flag;
-            if (flag3)
-            {
-                Object.Destroy(pointer);
-                pointer = null;
-            }
-            bool flag4 = flag;
-            if (flag4)
-            {
-                RaycastHit raycastHit;
-                if (Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandFollower.position - GorillaLocomotion.Player.Instance.rightHandFollower.position, -GorillaLocomotion.Player.Instance.rightHandFollower.position, out raycastHit))
-                {
-                    bool flag5 = pointer == null;
-                    if (flag5)
-                    {
-                        pointer = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        Object.Destroy(pointer.GetComponent<Rigidbody>());
-                        Object.Destroy(pointer.GetComponent<Collider>());
-                        pointer.transform.localScale = new Vector3(0.15f, 0.15f, 0.15f);
-                    }
-                    pointer.transform.position = raycastHit.point;
-                    GorillaRopeSwing componentInParent = raycastHit.collider.GetComponentInParent<GorillaRopeSwing>();
-                    bool flag6 = flag2;
-                    if (flag6)
-                    {
-                        componentInParent.photonView.RequestOwnership();
-                        componentInParent.photonView.TransferOwnership(PhotonNetwork.LocalPlayer);
-                        componentInParent.photonView.ControllerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
-                        componentInParent.SetVelocity_RPC(1, GorillaTagger.Instance.myVRRig.headConstraint.transform.forward * 5000f, true);
-                    }
-                }
-            }
-        }
+
 
 
 
@@ -1865,101 +1637,12 @@ true,
 
 
 
-        private static void TeleportToRandomPlayerARMS()
+        private static void GhostMonkeUpdated()
         {
-            bool triggerPressed = false;
-            List<InputDevice> devices = new List<InputDevice>();
-            InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Right, devices);
-            devices[0].TryGetFeatureValue(CommonUsages.triggerButton, out triggerPressed);
-
-            if (triggerPressed && !teleportationPerformed)
-            {
-                teleportationPerformed = true;
-
-                GameObject gorillaVRRigs = GameObject.Find("Global/GorillaParent/GorillaVRRigs");
-
-                if (gorillaVRRigs != null)
-                {
-                    UnityEngine.Transform[] vrRigTransforms = gorillaVRRigs.GetComponentsInChildren<UnityEngine.Transform>(true);
-
-                    if (vrRigTransforms.Length > 1)
-                    {
-                        int randomIndex = UnityEngine.Random.Range(1, vrRigTransforms.Length);
-                        UnityEngine.Transform randomObjectTransform = vrRigTransforms[randomIndex];
-
-                        GorillaLocomotion.Player.Instance.transform.position = randomObjectTransform.position;
-                        GorillaTagger.Instance.myVRRig.enabled = false;
-                        GorillaTagger.Instance.offlineVRRig.leftHandPlayer.transform.position = randomObjectTransform.position;
-                        GorillaTagger.Instance.myVRRig.leftHandPlayer.transform.position = randomObjectTransform.position;
-                        GorillaTagger.Instance.offlineVRRig.leftHandTransform.position = randomObjectTransform.position;
-                        GorillaTagger.Instance.myVRRig.leftHandTransform.position = randomObjectTransform.position;
-                        PhotonView.Get(GorillaGameManager.instance.GetComponent<GorillaGameManager>()).RPC("ReportTagRPC", RpcTarget.All, randomObjectTransform.GetComponentInParent<PhotonView>().Owner);
-
-                        randomObjectTransform.gameObject.SetActive(false);
-                    }
-                }
-            }
-            else if (!triggerPressed)
-            {
-                teleportationPerformed = false;
-                GorillaTagger.Instance.myVRRig.enabled = true;
-            }
+            GorillaLocomotion.Player.Instance.enabled = false;
         }
 
-        public static void TagGunArms()
-        {
-            bool flag = false;
-            bool flag2 = false;
-            List<InputDevice> list = new List<InputDevice>();
-            InputDevices.GetDevices(list);
-            InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.Right, list);
 
-            if (list.Count > 0)
-            {
-                list[0].TryGetFeatureValue(CommonUsages.triggerButton, out flag);
-                list[0].TryGetFeatureValue(CommonUsages.gripButton, out flag2);
-            }
-
-            if (flag2)
-            {
-                RaycastHit raycastHit;
-                bool flag4 = Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position - GorillaLocomotion.Player.Instance.rightControllerTransform.up, -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out raycastHit) && pointer == null;
-                if (flag4)
-                {
-                    pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    Object.Destroy(pointer.GetComponent<Rigidbody>());
-                    Object.Destroy(pointer.GetComponent<SphereCollider>());
-                    pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-                }
-
-                pointer.transform.position = raycastHit.point;
-
-                bool flag5 = flag && raycastHit.collider.GetComponentInParent<PhotonView>() != null;
-                if (flag5)
-                {
-                    GorillaTagger.Instance.myVRRig.enabled = false;
-                    GorillaTagger.Instance.offlineVRRig.leftHandTransform.position = FindVRRigForPlayer(raycastHit.collider.GetComponentInParent<PhotonView>().Owner).transform.position;
-                    GorillaTagger.Instance.myVRRig.leftHandTransform.position = FindVRRigForPlayer(raycastHit.collider.GetComponentInParent<PhotonView>().Owner).transform.position;
-                }
-            }
-            else
-            {
-                bool flag6 = pointer != null && PhotonNetwork.InRoom;
-                if (flag6)
-                {
-                    GorillaTagger.Instance.myVRRig.enabled = true;
-                    Object.Destroy(pointer);
-                    pointer = null;
-                }
-
-                bool flag7 = pointer != null && !PhotonNetwork.InRoom;
-                if (flag7)
-                {
-                    Object.Destroy(pointer);
-                    pointer = null;
-                }
-            }
-        }
 
 
         private static void FpsCounter(bool enable)
@@ -2036,50 +1719,6 @@ true,
 
 
 
-        private static void ScareGunArms()
-        {
-            bool triggerPressed = false;
-            bool gripPressed = false;
-            List<InputDevice> devices = new List<InputDevice>();
-            InputDevices.GetDevices(devices);
-            InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.Right, devices);
-            devices[0].TryGetFeatureValue(CommonUsages.triggerButton, out triggerPressed);
-            devices[0].TryGetFeatureValue(CommonUsages.gripButton, out gripPressed);
-
-            if (gripPressed)
-            {
-                RaycastHit raycastHit;
-                bool raycastSuccess = Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position - GorillaLocomotion.Player.Instance.rightControllerTransform.position, -GorillaLocomotion.Player.Instance.rightControllerTransform.position, out raycastHit);
-                if (raycastSuccess && pointer == null)
-                {
-                    pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    Object.Destroy(pointer.GetComponent<Rigidbody>());
-                    Object.Destroy(pointer.GetComponent<SphereCollider>());
-                    pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-                }
-                if (pointer != null)
-                {
-                    pointer.transform.position = raycastHit.point;
-                }
-
-                if (triggerPressed)
-                {
-                    if (pointer != null)
-                    {
-                        GorillaTagger.Instance.offlineVRRig.enabled = false;
-                        GorillaTagger.Instance.myVRRig.enabled = false;
-                        GorillaTagger.Instance.offlineVRRig.leftHandPlayer.transform.position = pointer.transform.position;
-                        GorillaTagger.Instance.myVRRig.leftHandPlayer.transform.position = pointer.transform.position;
-                    }
-                }
-            }
-            if (!triggerPressed)
-            {
-                GorillaTagger.Instance.offlineVRRig.enabled = true;
-                GorillaTagger.Instance.myVRRig.enabled = true;
-                Object.Destroy(pointer);
-            }
-        }
 
 
         public static void CheckVersion()
@@ -2138,12 +1777,14 @@ true,
             if (freeze)
             {
                 GorillaTagger.Instance.myVRRig.enabled = false;
+                GorillaTagger.Instance.offlineVRRig.enabled = false;
                 GorillaTagger.Instance.myVRRig.transform.position = GorillaLocomotion.Player.Instance.bodyCollider.transform.position + new Vector3(0f, 0.3f, 0f);
                 GorillaTagger.Instance.myVRRig.transform.rotation *= Quaternion.Euler(0f, 6f, 0f);
             }
             else
             {
                 GorillaTagger.Instance.myVRRig.enabled = true;
+                GorillaTagger.Instance.offlineVRRig.enabled = true;
             }
         }
         private static void HeavenMonke()
@@ -2153,12 +1794,14 @@ true,
             if (freeze)
             {
                 GorillaTagger.Instance.myVRRig.enabled = false;
+                GorillaTagger.Instance.offlineVRRig.enabled = false;
                 GorillaTagger.Instance.myVRRig.transform.position += new Vector3(0f, 0.15f, 0f);
                 GorillaTagger.Instance.myVRRig.transform.rotation *= Quaternion.Euler(0f, 4f, 0f);
             }
             else
             {
                 GorillaTagger.Instance.myVRRig.enabled = true;
+                GorillaTagger.Instance.offlineVRRig.enabled = true;
             }
         }
         private static void SpinMonkeV2()
@@ -2168,7 +1811,7 @@ true,
             if (freeze)
             {
                 GorillaTagger.Instance.myVRRig.enabled = false;
-
+                GorillaTagger.Instance.offlineVRRig.enabled = false;
                 float rotationSpeed = 1f;
                 float radius = 3f;
 
@@ -2185,6 +1828,7 @@ true,
             else
             {
                 GorillaTagger.Instance.myVRRig.enabled = true;
+                GorillaTagger.Instance.offlineVRRig.enabled = false;
             }
         }
         private static void SpinMonkeAroundGun()
@@ -2229,9 +1873,6 @@ true,
 
                         GorillaTagger.Instance.myVRRig.transform.position = circle;
                         GorillaTagger.Instance.myVRRig.transform.rotation *= Quaternion.Euler(0f, 6f, 0f);
-                        // offline Rig
-                        GorillaTagger.Instance.offlineVRRig.transform.position = circle;
-                        GorillaTagger.Instance.offlineVRRig.transform.rotation *= Quaternion.Euler(0f, 6f, 0f);
                     }
                 }
             }
@@ -2491,7 +2132,57 @@ true,
             }
         }
 
+        public static void DeleteGun()
+        {
+            bool flag = false;
+            bool flag2 = false;
+            List<InputDevice> list = new List<InputDevice>();
+            InputDevices.GetDevices(list);
+            InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.Right, list);
 
+            if (list.Count > 0)
+            {
+                list[0].TryGetFeatureValue(CommonUsages.triggerButton, out flag);
+                list[0].TryGetFeatureValue(CommonUsages.gripButton, out flag2);
+            }
+
+            if (flag2)
+            {
+                RaycastHit raycastHit;
+                bool raycastSuccess = Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position - GorillaLocomotion.Player.Instance.rightControllerTransform.up, -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out raycastHit);
+                if (raycastSuccess)
+                {
+                    if (pointer == null)
+                    {
+                        pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        Object.Destroy(pointer.GetComponent<Rigidbody>());
+                        Object.Destroy(pointer.GetComponent<SphereCollider>());
+                        pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                    }
+                    pointer.transform.position = raycastHit.point;
+
+                    bool flag5 = flag && raycastHit.collider.GetComponentInParent<PhotonView>() != null;
+                    if (flag5)
+                    {
+                        UnityEngine.Object.Destroy(FindVRRigForPlayer(raycastHit.collider.GetComponentInParent<PhotonView>().Owner));
+                    }
+                }
+            }
+            else
+            {
+                // Destroy the pointer when grip button is released
+                if (pointer != null)
+                {
+                    Object.Destroy(pointer);
+                    pointer = null;
+                }
+            }
+        }
+
+        private static void DestroyALL()
+        {
+            PhotonNetwork.Destroy(GameObject.Find("RigCache"));
+        }
 
         public static void TPtoTutorial(bool enable)
         {
@@ -2558,7 +2249,7 @@ true,
         {
             foreach (VRRig vrrig in (VRRig[])Object.FindObjectsOfType(typeof(VRRig)))
             {
-                if (!vrrig.isOfflineVRRig && !vrrig.isMyPlayer && !vrrig.photonView.IsMine)
+                if (!vrrig.isOfflineVRRig && !vrrig.isMyPlayer)
                 {
                     GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                     Object.Destroy(gameObject.GetComponent<BoxCollider>());
@@ -2681,12 +2372,10 @@ true,
             if (flag)
             {
                 GorillaTagger.Instance.offlineVRRig.head.trackingRotationOffset.z = 180f;
-                GorillaTagger.Instance.myVRRig.head.trackingRotationOffset.z = 180f;
             }
             else
             {
                 GorillaTagger.Instance.offlineVRRig.head.trackingRotationOffset.z = 0f;
-                GorillaTagger.Instance.myVRRig.head.trackingRotationOffset.z = 0f;
             }
         }
 
@@ -2799,7 +2488,7 @@ true,
         {
             foreach (VRRig vrrig in (VRRig[])UnityEngine.Object.FindObjectsOfType(typeof(VRRig)))
             {
-                if (!vrrig.isOfflineVRRig && !vrrig.isMyPlayer && !vrrig.photonView.IsMine)
+                if (!vrrig.isOfflineVRRig && !vrrig.isMyPlayer)
                 {
                     GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
                     UnityEngine.Object.Destroy(gameObject.GetComponent<BoxCollider>());
@@ -3126,29 +2815,6 @@ true,
             }
         }
 
-
-        public static VRRig GetClosestVrrig()
-        {
-            VRRig result = null;
-            float num = float.PositiveInfinity;
-            foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerListOthers)
-            {
-                bool flag = player != PhotonNetwork.LocalPlayer;
-                if (flag)
-                {
-                    VRRig vrrig = FindVRRigForPlayer(player);
-                    Vector3 vector = vrrig.transform.position - GorillaTagger.Instance.myVRRig.transform.position;
-                    bool flag2 = vector.magnitude < num;
-                    if (flag2)
-                    {
-                        result = vrrig;
-                        num = vector.magnitude;
-                    }
-                }
-            }
-            return result;
-        }
-
         public static void AllSlingshots()
         {
             foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
@@ -3262,54 +2928,20 @@ true,
 
         private static bool _buttonPressed = false;
 
-        private static void ProcessGhostMonke(bool enable)
+        private static void ProcessGhostMonke()
         {
             List<InputDevice> list = new List<InputDevice>();
             InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Right, list);
             list[0].TryGetFeatureValue(CommonUsages.secondaryButton, out bool buttonPress);
-
-            if (PhotonNetwork.CurrentRoom != null)
+            if (buttonPress)
             {
-                // Online mode
-                if (buttonPress && !_buttonPressed && enable)
-                {
-                    GorillaTagger.Instance.myVRRig.enabled = !GorillaTagger.Instance.myVRRig.enabled;
-                    _buttonPressed = true;
-                }
-                else if (!buttonPress && _buttonPressed)
-                {
-                    _buttonPressed = false;
-                }
+                GorillaTagger.Instance.myVRRig.enabled = false;
+                GorillaTagger.Instance.offlineVRRig.enabled = false;
             }
             else
             {
-                if (buttonPress && !_buttonPressed && enable)
-                {
-                    GorillaTagger.Instance.offlineVRRig.enabled = !GorillaTagger.Instance.offlineVRRig.enabled;
-                    _buttonPressed = true;
-                }
-                else if (!buttonPress && _buttonPressed)
-                {
-                    _buttonPressed = false;
-                }
-            }
-        }
-
-        private static void cosmeticroomenabled()
-        {
-            foreach (VRRig vrrig in Object.FindObjectsOfType<VRRig>())
-            {
-                if (!vrrig.photonView.IsMine)
-                {
-                    vrrig.photonView.RequestOwnership();
-                }
-                if (vrrig.photonView.IsMine)
-                {
-                    foreach (VRRig vrrig2 in GorillaParent.instance.vrrigs)
-                    {
-                        Object.FindObjectOfType<VRRig>().inTryOnRoom = true;
-                    }
-                }
+                GorillaTagger.Instance.myVRRig.enabled = true;
+                GorillaTagger.Instance.offlineVRRig.enabled = true;
             }
         }
 
@@ -3411,46 +3043,6 @@ true,
 
 
 
-        private static void ProcessTagSound()
-        {
-            int[] array = new int[]
-            {
-        0,
-        2,
-        5,
-        8,
-        11
-            };
-            foreach (VRRig monoBehaviourPun in (VRRig[])UnityEngine.Object.FindObjectsOfType(typeof(VRRig)))
-            {
-                int num = new System.Random().Next(array.Length);
-                monoBehaviourPun.photonView.RPC("PlayTagSound", RpcTarget.All, new object[]
-                {
-            array[num],
-            0.25f
-                });
-            }
-            int[] array3 = new int[]
-            {
-        0,
-        2,
-        5,
-        8,
-        11
-            };
-            foreach (VRRig monoBehaviourPun2 in (VRRig[])UnityEngine.Object.FindObjectsOfType(typeof(VRRig)))
-            {
-                int num2 = new System.Random().Next(array3.Length);
-                monoBehaviourPun2.photonView.RPC("PlayHandTap", RpcTarget.All, new object[]
-                {
-            array3[num2],
-            0.25f
-                });
-            }
-            UnityEngine.Object.Destroy(menu);
-            menu = null;
-            Draw();
-        }
 
 
 
@@ -3499,7 +3091,7 @@ true,
             list[0].TryGetFeatureValue(CommonUsages.gripButton, out value2);
             if (value2)
             {
-                Physics.Raycast(GorillaLocomotion.Player.Instance.rightHandFollower.position - GorillaLocomotion.Player.Instance.rightHandFollower.up, -GorillaLocomotion.Player.Instance.rightHandFollower.up, out var hitInfo);
+                Physics.Raycast(GorillaLocomotion.Player.Instance.rightControllerTransform.position - GorillaLocomotion.Player.Instance.rightControllerTransform.up, -GorillaLocomotion.Player.Instance.rightControllerTransform.up, out var hitInfo);
                 if (pointer == null)
                 {
                     pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
