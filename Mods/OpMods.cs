@@ -21,12 +21,14 @@ using KosmosModMenu.Mods;
 using IronMonke;
 using System.Net;
 using System.Threading;
-using UnityEngine.UI;
 
 namespace KosmosModMenu.Mods
 {
     internal class OpMods
     {
+
+
+
 
 
 
@@ -103,8 +105,8 @@ namespace KosmosModMenu.Mods
                 GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", RpcTarget.All, new object[]
                 {
             GorillaTagger.Instance.myVRRig.transform.position,
-            GorillaTagger.Instance.myVRRig.transform.rotation,
-            100f,
+            UnityEngine.Random.rotation,
+            4,
             100f,
             false,
             false
@@ -142,6 +144,7 @@ namespace KosmosModMenu.Mods
                         GorillaTagger.Instance.offlineVRRig.enabled = false;
                         GorillaTagger.Instance.myVRRig.transform.position = pointer.transform.position + new Vector3(0, -1, 0);
                         GorillaTagger.Instance.offlineVRRig.transform.position = pointer.transform.position + new Vector3(0, -1, 0);
+
                         GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", RpcTarget.All, new object[]
                         {
                     hitInfo.point,
@@ -215,7 +218,7 @@ namespace KosmosModMenu.Mods
                             UnityEngine.Random.rotation,
                             4f,
                             100f,
-                            true,
+                            false,
                             false
                         });
                     }
@@ -274,10 +277,12 @@ namespace KosmosModMenu.Mods
                 if (!triggerPressed && stupidfag)
                 {
                     stupidfag = true;
+                    waterbox.transform.position = new Vector3(0f, -6969f, 0f);
                 }
             }
             else
             {
+                waterbox.transform.position = new Vector3(0f, -6969f, 0f);
                 Object.Destroy(pointer);
             }
         }
@@ -341,7 +346,62 @@ namespace KosmosModMenu.Mods
                 }
             }
         }
+
+        private static bool isTriggerHeld;
+        public static void WaterSpamV2()
+        {
+            bool flag = waterbox == null;
+            bool flag2 = flag;
+            if (flag2)
+            {
+                GameObject level = GameObject.Find("Level");
+                Transform forestToBeach = level.transform.Find("ForestToBeach_Prefab_V4");
+                forestToBeach.gameObject.SetActive(true);
+                waterbox = Object.Instantiate<GameObject>(forestToBeach.Find("CaveWaterVolume").gameObject);
+                Object.Destroy(waterbox.GetComponentInChildren<Renderer>());
+            }
+            else
+            {
+                List<InputDevice> devices = new List<InputDevice>();
+                InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Right, devices);
+                devices[0].TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerPressed);
+
+                if (triggerPressed)
+                {
+                    isTriggerHeld = true;
+                    while (isTriggerHeld)
+                    {
+                        float minX = 0f;
+                        float maxX = 1f;
+                        float minY = 0f;
+                        float maxY = 1f;
+                        float minZ = 0f;
+                        float maxZ = 1f;
+
+                        Vector3 randomPosition = new Vector3(UnityEngine.Random.Range(minX, maxX), UnityEngine.Random.Range(minY, maxY), UnityEngine.Random.Range(minZ, maxZ));
+                        waterbox.transform.position = GorillaTagger.Instance.headCollider.transform.position + randomPosition;
+
+                        devices[0].TryGetFeatureValue(CommonUsages.triggerButton, out triggerPressed);
+                        if (!triggerPressed)
+                        {
+                            isTriggerHeld = false;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    isTriggerHeld = false;
+                    waterbox.transform.position = new Vector3(0f, -6969f, 0f);
+                }
+            }
+        }
         // end of water mods \\
+
+
+
+
+
 
 
         // important things \\

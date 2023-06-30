@@ -24,6 +24,10 @@ using System.Threading;
 using System.ComponentModel.Design;
 using ModsKosmosModMenuBoxESP;
 using PlayFab.MultiplayerModels;
+using static UnityEngine.UI.GridLayoutGroup;
+using static System.Net.Mime.MediaTypeNames;
+using Text = UnityEngine.UI.Text;
+using Inputs;
 
 namespace ModMenuPatch.HarmonyPatches
 {
@@ -146,15 +150,15 @@ namespace ModMenuPatch.HarmonyPatches
         "Swim In Air",
         "Slingshot ALL (SS)(UD)",
         "Slingshot Self (SS)(UD)",
-        "Waterspam (Trigger)",
-        "Waterspam GUN",
+        "Waterspam (Trigger)(UD)",
+        "Waterspam GUN(UD)",
         "Destroy Gun",
         "Delete ALL",
         "LAG ALL EXTREME BAN SELF AHAHAH",
         "Grab Bug",
         "Cool FPS Counter",
-        "Water Gun",
-        "Spam Water",
+        "Water Gun(MODDED ONLY! DETECTED)",
+        "Spam Water(MODDED ONLY! DETECTED)",
         "Big Water Splash (For Water Mods)",
         "Spin Monke (G)",
         "Heaven Monke (G)",
@@ -166,7 +170,10 @@ namespace ModMenuPatch.HarmonyPatches
         "Freeze ALL (D?)",
         "No Tag On Join Pub (UD)",
         "Low Quality",
-        "Watergun TEST",
+        "Watergun ANYWHERE",
+        "Set Modded Que",
+        "Report ALL",
+
     };
 
         private static bool?[] buttonsActive = new bool?[]
@@ -318,7 +325,7 @@ namespace ModMenuPatch.HarmonyPatches
 
         public static bool triggerpress2 { get; private set; }
 
-        public static string version = "2"; // Update whenever Update : - )
+        public static string version = "3"; // Update whenever Update : - )
 
 
         private static void Prefix()
@@ -589,7 +596,7 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[38] == true)
                 {
-                    OpMods.WaterSpam();
+                    OpMods.WaterSpamV2();
                 }
                 if (buttonsActive[39] == true)
                 {
@@ -675,8 +682,14 @@ namespace ModMenuPatch.HarmonyPatches
                 {
                     OpMods.watergunANYWHERE();
                 }
-
-
+                if (buttonsActive[59] == true)
+                {
+                    JoinModded();
+                }
+                if (buttonsActive[60] == true)
+                {
+                    ReportALL();
+                }
 
 
 
@@ -776,10 +789,9 @@ namespace ModMenuPatch.HarmonyPatches
                     Photon.Realtime.Player targetPlayer = raycastHit.collider.GetComponentInParent<PhotonView>().Owner;
                     Vector3 rigPosition = FindVRRigForPlayer(targetPlayer).transform.position;
                     Vector3 forwardDirection = FindVRRigForPlayer(targetPlayer).transform.forward;
-                    float distance = -1f;
                     Vector3 targetrigposthing = FindVRRigForPlayer(targetPlayer).transform.position;
                     GorillaTagger.Instance.myVRRig.enabled = false;
-                    float lerpFactor = 0.1f; // Adjust the lerp factor as needed
+                    float lerpFactor = 0.1f;
                     Vector3 targetPosition = targetrigposthing + (maxDistance * forwardDirection);
                     Vector3 newPosition = Vector3.Lerp(GorillaTagger.Instance.myVRRig.transform.position, targetPosition, lerpFactor);
                     GorillaTagger.Instance.myVRRig.transform.position = newPosition;
@@ -917,22 +929,31 @@ namespace ModMenuPatch.HarmonyPatches
             }
         }
 
+        private static void ReportALL()
+        {
+            foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerList)
+            {
+                if (player.UserId != PhotonNetwork.LocalPlayer.UserId)
+                {
+                    GorillaPlayerScoreboardLine.ReportPlayer(player.UserId, GorillaPlayerLineButton.ButtonType.Cheating, player.NickName);
+                    GorillaPlayerScoreboardLine.ReportPlayer(player.UserId, GorillaPlayerLineButton.ButtonType.Toxicity, player.NickName);
+                    GorillaPlayerScoreboardLine.ReportPlayer(player.UserId, GorillaPlayerLineButton.ButtonType.HateSpeech, player.NickName);
+                    GorillaPlayerScoreboardLine.ReportPlayer(player.UserId, GorillaPlayerLineButton.ButtonType.Cancel, player.NickName);
+                }
+            }
+        }
+
+
+        public static void JoinModded()
+        {
+            GorillaComputer.instance.currentQueue = "MODDED_CASUAL";
+            PlayerPrefs.SetString("currentQueue", "CASUAL");
+            PlayerPrefs.Save();
+        }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-        private static void scaregun()
+            private static void scaregun()
         {
             bool triggerPressed = false;
             bool gripPressed = false;
@@ -1727,7 +1748,7 @@ true,
             {
                 if (!client.DownloadString("https://pastebin.com/raw/VUL9VSHX").Contains(version))
                 {
-                    Application.OpenURL("https://github.com/realkosmoss/Kosmos-Mod-Menu");
+                    UnityEngine.Application.OpenURL("https://github.com/realkosmoss/Kosmos-Mod-Menu");
                     {
                         for (int i = 0; i < GorillaComputer.instance.levelScreens.Length; i++)
                         {
@@ -3347,7 +3368,6 @@ true,
 
         public static void Draw()
         {
-
             bool check = !changedboards;
             if (check)
             {
