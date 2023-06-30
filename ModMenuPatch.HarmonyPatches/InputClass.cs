@@ -7,8 +7,8 @@ using UnityEngine.XR;
 
 namespace Inputs
 {
-    [HarmonyPatch(typeof(Player))]
-    [HarmonyPatch("FixedUpdate", 0)]
+
+
     public class InputClass
     {
         private static void Prefix(Player __instance)

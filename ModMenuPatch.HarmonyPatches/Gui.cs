@@ -9,6 +9,10 @@ using UnityEngine.XR;
 using static Photon.Pun.UtilityScripts.TabViewManager;
 using UnityEngine.SceneManagement;
 using ModsKosmosModMenuBoxESP;
+using System;
+using UnityEngine.UI;
+using Player = GorillaLocomotion.Player;
+using UnityEngine.Networking;
 
 namespace KosmosGUI
 {
@@ -56,6 +60,7 @@ namespace KosmosGUI
                 modActive[3] = GUI.Toggle(new Rect(50f, 140f, 500f, 25f), modActive[3], modNames[3]);
                 modActive[4] = GUI.Toggle(new Rect(50f, 160f, 500f, 25f), modActive[4], modNames[4]);
                 modActive[5] = GUI.Toggle(new Rect(50f, 180f, 500f, 25f), modActive[5], modNames[5]);
+                modActive[6] = GUI.Toggle(new Rect(50f, 200f, 500f, 25f), modActive[6], modNames[6]);
                 // this is where the mods are linked to the buttons
                 if (modActive[0])
                 {
@@ -71,7 +76,7 @@ namespace KosmosGUI
                 }
                 if (modActive[3])
                 {
-                    spamwater();
+                    UpdateRoomInfo();
                 }
                 if (modActive[4])
                 {
@@ -79,7 +84,22 @@ namespace KosmosGUI
                 }
                 if (modActive[5])
                 {
-
+                    for (int i = 0; i < 10; i++)
+                    {
+                        GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", RpcTarget.All, new object[]
+                        {
+        GorillaTagger.Instance.myVRRig.transform.position,
+        UnityEngine.Random.rotation,
+        4f,
+        100f,
+        false,
+        false
+                        });
+                    }
+                }
+                if (modActive[6])
+                {
+                    PcGun();
                 }
             }
         }
@@ -95,7 +115,6 @@ namespace KosmosGUI
         private static bool SuperFastBugOnorOff = false;
         private static void FastBug(bool enable)
         {
-            bool FastBug;
             if (enable)
             {
                 GameObject.Find("Floating Bug Holdable").GetComponent<ThrowableBug>().maxNaturalSpeed = 10f;
@@ -128,29 +147,107 @@ namespace KosmosGUI
             }
         }
 
-
-
-        private static string testphototshit()
+        public static void UpdateRoomInfo()
         {
-            return PhotonNetwork.InLobby + "HiLemmingDontBanMeIDoNotAbuseModsInPublicsOk?:)OnlyInModdeds";
-            PlayFabAuthenticator.instance.AuthenticateWithPlayFab();
-            PhotonNetwork.CreateRoom("CRATES");
-            PhotonNetwork.Disconnect();
-            PhotonNetwork.CreateRoom("CRATES1");
-            PhotonNetwork.Disconnect();
-            PhotonNetwork.CreateRoom("CRATES2");
-            PhotonNetwork.Disconnect();
-            PhotonNetwork.CreateRoom("CRATES3");
-            PhotonNetwork.LeaveLobby();
-            PhotonNetwork.LoadLevel(1);
-            PhotonNetwork.LoadLevel(2);
-            PhotonNetwork.LoadLevel(3);
-            PhotonNetwork.LoadLevel(4);
-            PhotonNetwork.LoadLevel(5);
-            PhotonNetwork.LoadLevel(6);
-            PhotonNetwork.LoadLevel(7);
-            PhotonNetwork.LoadLevel(8);
+            {
+                GameObject.Find("Level/lower level/UI/CodeOfConduct/COC Text").GetComponent<Text>().text = "INFO";
+                GameObject.Find("COC Text").GetComponent<Text>().text = string.Concat(new object[]
+                {
+                "\nROOM INFO: ",
+                PhotonNetwork.CurrentRoom,
+                "\nPLAYERS IN ROOM: ",
+                PhotonNetwork.CountOfPlayers,
+                "\nPLAYERS ONLINE: ",
+                PhotonNetwork.CountOfPlayersInRooms,
+                "\nTIME: ",
+                DateTime.Now.ToString("hh:mm"),
+                "\nMASTER?: ",
+                PhotonNetwork.LocalPlayer.IsMasterClient,
+                "\nNAME: ",
+                PhotonNetwork.LocalPlayer.NickName,
+                "\nPLAYERID: ",
+                PhotonNetwork.LocalPlayer.UserId
+                });
+            }
         }
+
+
+
+        public static GameObject pointer = null;
+        public static void PcWaterGun()
+        {
+            bool mouseButton = Input.GetMouseButton(1);
+            if (mouseButton)
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit raycastHit;
+                bool flag = Physics.Raycast(ray, out raycastHit) && pointer == null;
+                if (flag)
+                {
+                    pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    Destroy(pointer.GetComponent<Rigidbody>());
+                    Destroy(pointer.GetComponent<SphereCollider>());
+                    pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                }
+                pointer.transform.position = raycastHit.point;
+                Photon.Realtime.Player owner = raycastHit.collider.GetComponentInParent<PhotonView>().Owner;
+                bool mouseButtonDown = Input.GetMouseButtonDown(0);
+                if (mouseButtonDown)
+                {
+                    GorillaTagger.Instance.myVRRig.enabled = false;
+                    GorillaTagger.Instance.offlineVRRig.enabled = false;
+                    GorillaTagger.Instance.myVRRig.transform.position = pointer.transform.position + new Vector3(0, -1, 0);
+                    GorillaTagger.Instance.offlineVRRig.transform.position = pointer.transform.position + new Vector3(0, -1, 0);
+
+                    GorillaTagger.Instance.myVRRig.RPC("PlaySplashEffect", RpcTarget.All, new object[]
+{
+                    raycastHit.point,
+                    UnityEngine.Random.rotation,
+                    4f,
+                    100f,
+                    false,
+                    false
+                    });
+                }
+                else
+                {
+                    GorillaTagger.Instance.myVRRig.enabled = true;
+                    GorillaTagger.Instance.offlineVRRig.enabled = true;
+                }
+            }
+        }
+        public static void PcGun()
+        {
+            bool mouseButton = Input.GetMouseButtonDown(1);
+            if (mouseButton)
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit raycastHit;
+
+                if (Physics.Raycast(ray, out raycastHit))
+                {
+                    if (pointer == null)
+                    {
+                        pointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        Destroy(pointer.GetComponent<Rigidbody>());
+                        Destroy(pointer.GetComponent<SphereCollider>());
+                        pointer.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                    }
+
+                    pointer.transform.position = raycastHit.point;
+                }
+                else
+                {
+                    if (pointer != null)
+                    {
+                        Destroy(pointer);
+                        pointer = null;
+                    }
+                }
+            }
+        }
+
+
 
 
         public static void spamwater()
@@ -159,7 +256,7 @@ namespace KosmosGUI
             {
         GorillaTagger.Instance.myVRRig.transform.position,
         GorillaTagger.Instance.myVRRig.transform.rotation,
-        100f,
+        1,
         100f,
         false,
         false
@@ -228,8 +325,9 @@ namespace KosmosGUI
         private static bool init = true;
 
         // mod toggles
-        public static bool[] modActive = new bool[6]
+        public static bool[] modActive = new bool[7]
         {
+            false,
             false,
             false,
             false,
@@ -239,14 +337,15 @@ namespace KosmosGUI
         };
 
         // mod names
-        public static string[] modNames = new string[6]
+        public static string[] modNames = new string[7]
         {
             "Quit Gorilla Tag",
             "Disconnect",
             "Keyboard Movement",
-            "Spam Water",
+            "Cool Coc Board With Info!",
             "Less Ping",
-            ""
+            "WATER!",
+            "WATERGUN PC!",
         };
     }
 }
