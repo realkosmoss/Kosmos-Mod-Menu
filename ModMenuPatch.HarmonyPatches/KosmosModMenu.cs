@@ -152,9 +152,9 @@ namespace ModMenuPatch.HarmonyPatches
         "Slingshot Self (SS)(UD)",
         "Waterspam (Trigger)(UD)",
         "Waterspam GUN(UD)",
-        "Destroy Gun",
-        "Delete ALL",
-        "LAG ALL EXTREME BAN SELF AHAHAH",
+        "Placeholder 40",
+        "placeholder 41",
+        "placeholder 42",
         "Grab Bug",
         "Cool FPS Counter",
         "Water Gun(MODDED ONLY! DETECTED)",
@@ -604,15 +604,15 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[40] == true)
                 {
-                    
+                    // placeholder 40
                 }
                 if (buttonsActive[41] == true)
                 {
-                    
+                    // placeholder 41
                 }
                 if (buttonsActive[42] == true)
                 {
-
+                    // placeholder 42
                 }
                 if (buttonsActive[43] == true)
                 {
@@ -3376,7 +3376,7 @@ true,
                 {
                     Material material = new Material(Shader.Find("Standard"));
                     material.color = Color.black;
-                    string newText = $"Thanks For Picking Kosmos Mod Menu!\nStatus: UNDETECTED!\nVersion: {version}\nDiscord: kosmos#0795";
+                    string newText = $"Thanks For Picking Kosmos Mod Menu!\nStatus: UNDETECTED!\nVersion: {version}\nDiscord: kosmos#0795 And https://discord.gg/XdP2nWQZAh";
                     GorillaComputer.instance.levelScreens[i].goodMaterial = material;
                     bool activeSelf = GameObject.Find("Level/lower level").activeSelf;
                     if (activeSelf)
