@@ -401,7 +401,7 @@ namespace ModMenuPatch.HarmonyPatches
                 }
                 if (buttonsActive[5] == true)
                 {
-                    ProcessGhostMonke();
+                    // ProcessGhostMonke(); DETECTED GHOSTMONKE GHOST MONKE!
                 }
                 if (buttonsActive[6] == true)
                 {
@@ -689,6 +689,14 @@ namespace ModMenuPatch.HarmonyPatches
                 if (buttonsActive[60] == true)
                 {
                     ReportALL();
+                }
+                if (buttonsActive[61] == true)
+                {
+                    foreach (FireworksController fireworksController in Resources.FindObjectsOfTypeAll<FireworksController>())
+                    {
+                        fireworksController.LaunchVolleyRound();
+                        fireworksController.LaunchVolley();
+                    }
                 }
 
 
@@ -1658,10 +1666,6 @@ true,
 
 
 
-        private static void GhostMonkeUpdated()
-        {
-            GorillaLocomotion.Player.Instance.enabled = false;
-        }
 
 
 

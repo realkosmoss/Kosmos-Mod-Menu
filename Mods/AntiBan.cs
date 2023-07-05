@@ -59,6 +59,7 @@ namespace AntiGorillaNot
         [HarmonyPatch(typeof(GorillaNot), "SendReport")]
         [HarmonyPatch(typeof(GorillaNot), "LogErrorCount")]
         [HarmonyPatch(typeof(GorillaNot), "CheckReports")]
+        [HarmonyPatch(typeof(GorillaNot), "SendReport")]
         [HarmonyPrefix]
         private static bool Prefix()
         {
