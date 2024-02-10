@@ -1,6 +1,6 @@
-# Kosmos Private Mod Menu
+# Kosmos SUPER SKIDDED Mod Menu
 Injector Below
 https://github.com/realkosmoss/Kosmos-Mod-Menu-Injector
-To Inject The Menu!
+
+# Old server dont join
 https://discord.gg/XdP2nWQZAh
-:)
